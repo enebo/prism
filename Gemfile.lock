@@ -17,6 +17,7 @@ GEM
 
 PLATFORMS
   ruby
+  universal-java-1.8
 
 DEPENDENCIES
   rake

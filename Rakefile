@@ -3,19 +3,38 @@
 require "rake/extensiontask"
 require "rake/testtask"
 require "rake/clean"
-require "ruby_memcheck"
 
-RubyMemcheck.config(binary_name: "yarp")
+if RUBY_ENGINE != 'jruby'
+  require "ruby_memcheck"
+
+  RubyMemcheck.config(binary_name: "yarp")
+end
 
 task compile: :make
 
-Rake::ExtensionTask.new(:compile) do |ext|
-  ext.name = "yarp"
-  ext.ext_dir = "ext/yarp"
-  ext.lib_dir = "lib/yarp"
-  ext.gem_spec = Gem::Specification.load("yarp.gemspec")
-end
+if RUBY_ENGINE == 'jruby'
+  require 'rake/javaextensiontask'
+  target = 'java'
 
+  Rake::JavaExtensionTask.new(:compile) do |ext|
+    ext.ext_dir = 'java'
+    ext.lib_dir = "lib/yarp"
+    ext.source_version = '1.8'
+    ext.target_version = '1.8'
+    ext.gem_spec = Gem::Specification.load("yarp.gemspec")
+  end
+
+else
+  target = ''
+  
+  Rake::ExtensionTask.new(:compile) do |ext|
+    ext.name = "yarp"
+    ext.ext_dir = "ext/yarp"
+    ext.lib_dir = "lib/yarp"
+    ext.gem_spec = Gem::Specification.load("yarp.gemspec")
+  end
+end
+  
 test_config = lambda do |t|
   t.libs << "test"
   t.libs << "lib"
@@ -24,8 +43,10 @@ end
 
 Rake::TestTask.new(test: :compile, &test_config)
 
-namespace :test do
-  RubyMemcheck::TestTask.new(valgrind: :compile, &test_config)
+if RUBY_ENGINE != 'jruby'
+  namespace :test do
+    RubyMemcheck::TestTask.new(valgrind: :compile, &test_config)
+  end
 end
 
 task default: :test
@@ -49,7 +70,7 @@ desc "Generate all ERB template based files"
 task templates: TEMPLATES
 
 task make: :templates do
-  sh "make"
+  sh "make", target
 end
 
 task generate_compilation_database: [:clobber, :templates] do
