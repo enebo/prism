@@ -10,6 +10,7 @@
 #include <string.h>
 
 #include "util/yp_buffer.h"
+#include "util/yp_strpbrk.h"
 #include "util/yp_strspn.h"
 #include "ast.h"
 #include "diagnostic.h"
@@ -20,7 +21,7 @@
 #include "unescape.h"
 
 #define YP_VERSION_MAJOR 0
-#define YP_VERSION_MINOR 2
+#define YP_VERSION_MINOR 4
 #define YP_VERSION_PATCH 0
 
 void
@@ -36,6 +37,11 @@ yp_version(void);
 // Initialize a parser with the given start and end pointers.
 __attribute__((__visibility__("default"))) extern void
 yp_parser_init(yp_parser_t *parser, const char *source, size_t size);
+
+// Register a callback that will be called whenever YARP changes the encoding it
+// is using to parse based on the magic comment.
+__attribute__((__visibility__("default"))) extern void
+yp_parser_register_encoding_changed_callback(yp_parser_t *parser, yp_encoding_changed_callback_t callback);
 
 // Register a callback that will be called when YARP encounters a magic comment
 // with an encoding referenced that it doesn't understand. The callback should

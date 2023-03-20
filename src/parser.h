@@ -50,9 +50,9 @@ typedef enum {
 
 typedef enum {
   YP_HEREDOC_QUOTE_NONE,
-  YP_HEREDOC_QUOTE_SINGLE,
-  YP_HEREDOC_QUOTE_DOUBLE,
-  YP_HEREDOC_QUOTE_BACKTICK,
+  YP_HEREDOC_QUOTE_SINGLE = '\'',
+  YP_HEREDOC_QUOTE_DOUBLE = '"',
+  YP_HEREDOC_QUOTE_BACKTICK = '`',
 } yp_heredoc_quote_t;
 
 typedef enum {
@@ -70,9 +70,6 @@ typedef struct yp_lex_mode {
   enum {
     // This state is used when any given token is being lexed.
     YP_LEX_DEFAULT,
-
-    // This state is used when we're lexing an embdoc (a =begin..=end comment).
-    YP_LEX_EMBDOC,
 
     // This state is used when we're lexing as normal but inside an embedded
     // expression of a string.
@@ -115,26 +112,36 @@ typedef struct yp_lex_mode {
     } list;
 
     struct {
+      // When lexing a regular expression, it takes into account balancing the
+      // terminator if the terminator is one of (), [], {}, or <>.
+      char incrementor;
+
       // This is the terminator of the regular expression.
       char terminator;
+
+      // This keeps track of the nesting level of the regular expression.
+      size_t nesting;
     } regexp;
 
     struct {
+      // When lexing a string, it takes into account balancing the terminator if
+      // the terminator is one of (), [], {}, or <>.
+      char incrementor;
+
       // This is the terminator of the string. It is typically either a single
       // or double quote.
       char terminator;
 
+      // This keeps track of the nesting level of the string.
+      size_t nesting;
+
       // Whether or not interpolation is allowed in this string.
       bool interpolation;
+
+      // Whether or not at the end of the string we should allow a :, which
+      // would indicate this was a dynamic symbol instead of a string.
+      bool label_allowed;
     } string;
-
-    struct {
-      // This is the terminator of the symbol.
-      char terminator;
-
-      // Whether or not interpolation is allowed in this symbol.
-      bool interpolation;
-    } symbol;
 
     struct {
       // These pointers point to the beginning and end of the heredoc
@@ -213,8 +220,8 @@ typedef enum {
 // This is a node in the linked list of comments that we've found while parsing.
 typedef struct yp_comment {
   yp_list_node_t node;
-  uint32_t start;
-  uint32_t end;
+  const char *start;
+  const char *end;
   yp_comment_type_t type;
 } yp_comment_t;
 
@@ -228,6 +235,10 @@ typedef struct {
   size_t (*alnum_char)(const char *c);
   bool (*isupper_char)(const char *c);
 } yp_encoding_t;
+
+// When the encoding that is being used to parse the source is changed by YARP,
+// we provide the ability here to call out to a user-defined function.
+typedef void (*yp_encoding_changed_callback_t)(yp_parser_t *parser);
 
 // When an encoding is encountered that isn't understood by YARP, we provide
 // the ability here to call out to a user-defined function to get an encoding
@@ -280,6 +291,10 @@ struct yp_parser {
   // the beginning of a lambda following the parameters of a lambda.
   int lambda_enclosure_nesting;
 
+  // Used to track the nesting of braces to ensure we get the correct value when
+  // we are interpolating blocks with braces.
+  int brace_nesting;
+
   // the stack used to determine if a do keyword belongs to the predicate of a
   // while, until, or for loop
   yp_state_stack_t do_loop_stack;
@@ -322,11 +337,19 @@ struct yp_parser {
   // it's parsing so that it can change with a magic comment.
   yp_encoding_t encoding;
 
+  // When the encoding that is being used to parse the source is changed by
+  // YARP, we provide the ability here to call out to a user-defined function.
+  yp_encoding_changed_callback_t encoding_changed_callback;
+
   // When an encoding is encountered that isn't understood by YARP, we provide
   // the ability here to call out to a user-defined function to get an encoding
   // struct. If the function returns something that isn't NULL, we set that to
   // our encoding and use it to parse identifiers.
   yp_encoding_decode_callback_t encoding_decode_callback;
+
+  // This pointer indicates where a comment must start if it is to be considered
+  // an encoding comment.
+  const char *encoding_comment_start;
 
   // This is an optional callback that can be attached to the parser that will
   // be called whenever a new token is lexed by the parser.

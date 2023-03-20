@@ -2,8 +2,6 @@ tokens:
   - name: EOF
     value: 0
     comment: final token in the file
-  - name: INVALID
-    comment: "an invalid token"
   - name: MISSING
     comment: "a token that was expected but not found"
   - name: NOT_PROVIDED
@@ -18,10 +16,10 @@ tokens:
     comment: "&."
   - name: AMPERSAND_EQUAL
     comment: "&="
-  - name: BACK_REFERENCE
-    comment: "a back reference"
   - name: BACKTICK
     comment: "`"
+  - name: BACK_REFERENCE
+    comment: "a back reference"
   - name: BANG
     comment: "! or !@"
   - name: BANG_EQUAL
@@ -90,6 +88,8 @@ tokens:
     comment: "=~"
   - name: FLOAT
     comment: "a floating point number"
+  - name: GLOBAL_VARIABLE
+    comment: "a global variable"
   - name: GREATER
     comment: ">"
   - name: GREATER_EQUAL
@@ -98,8 +98,6 @@ tokens:
     comment: ">>"
   - name: GREATER_GREATER_EQUAL
     comment: ">>="
-  - name: GLOBAL_VARIABLE
-    comment: "a global variable"
   - name: HEREDOC_END
     comment: "the end of a heredoc"
   - name: HEREDOC_START
@@ -114,12 +112,6 @@ tokens:
     comment: "an instance variable"
   - name: INTEGER
     comment: "an integer (any base)"
-  - name: KEYWORD___ENCODING__
-    comment: "__ENCODING__"
-  - name: KEYWORD___LINE__
-    comment: "__LINE__"
-  - name: KEYWORD___FILE__
-    comment: "__FILE__"
   - name: KEYWORD_ALIAS
     comment: "alias"
   - name: KEYWORD_AND
@@ -158,6 +150,8 @@ tokens:
     comment: "for"
   - name: KEYWORD_IF
     comment: "if"
+  - name: KEYWORD_IF_MODIFIER
+    comment: "if in the modifier form"
   - name: KEYWORD_IN
     comment: "in"
   - name: KEYWORD_MODULE
@@ -174,6 +168,8 @@ tokens:
     comment: "redo"
   - name: KEYWORD_RESCUE
     comment: "rescue"
+  - name: KEYWORD_RESCUE_MODIFIER
+    comment: "rescue in the modifier form"
   - name: KEYWORD_RETRY
     comment: "retry"
   - name: KEYWORD_RETURN
@@ -190,14 +186,26 @@ tokens:
     comment: "undef"
   - name: KEYWORD_UNLESS
     comment: "unless"
+  - name: KEYWORD_UNLESS_MODIFIER
+    comment: "unless in the modifier form"
   - name: KEYWORD_UNTIL
     comment: "until"
+  - name: KEYWORD_UNTIL_MODIFIER
+    comment: "until in the modifier form"
   - name: KEYWORD_WHEN
     comment: "when"
   - name: KEYWORD_WHILE
     comment: "while"
+  - name: KEYWORD_WHILE_MODIFIER
+    comment: "while in the modifier form"
   - name: KEYWORD_YIELD
     comment: "yield"
+  - name: KEYWORD___ENCODING__
+    comment: "__ENCODING__"
+  - name: KEYWORD___FILE__
+    comment: "__FILE__"
+  - name: KEYWORD___LINE__
+    comment: "__LINE__"
   - name: LABEL
     comment: "a label"
   - name: LABEL_END
@@ -226,6 +234,8 @@ tokens:
     comment: "an nth global variable reference"
   - name: PARENTHESIS_LEFT
     comment: "("
+  - name: PARENTHESIS_LEFT_PARENTHESES
+    comment: "( for a parentheses node"
   - name: PARENTHESIS_RIGHT
     comment: ")"
   - name: PERCENT
@@ -286,10 +296,18 @@ tokens:
     comment: "the beginning of a symbol"
   - name: TILDE
     comment: "~ or ~@"
+  - name: UCOLON_COLON
+    comment: "unary ::"
+  - name: UDOT_DOT
+    comment: "unary .."
+  - name: UDOT_DOT_DOT
+    comment: "unary ..."
   - name: UMINUS
     comment: "-@"
   - name: UPLUS
     comment: "+@"
+  - name: USTAR
+    comment: "unary *"
   - name: WORDS_SEP
     comment: "a separator between words in a list"
   - name: __END__
@@ -349,7 +367,7 @@ nodes:
       - name: key
         type: node
       - name: value
-        type: node
+        type: node?
       - name: operator
         type: token?
     comment: |
@@ -382,7 +400,6 @@ nodes:
         type: node?
       - name: end_keyword
         type: token?
-    location: begin_keyword|statements->ensure_clause|end_keyword|statements
     comment: |
       Represents a begin statement.
 
@@ -390,17 +407,27 @@ nodes:
             foo
           end
           ^^^^^
+  - name: BlockArgumentNode
+    child_nodes:
+      - name: expression
+        type: node
+      - name: operator_loc
+        type: location
+    comment: |
+      Represents block method arguments.
+
+          bar(&args)
+          ^^^^^^^^^^
   - name: BlockNode
     child_nodes:
-      - name: start_keyword
-        type: token
-      - name: arguments
+      - name: parameters
         type: node?
       - name: statements
         type: node?
-      - name: end_keyword
-        type: token
-    location: start_keyword->end_keyword
+      - name: opening_loc
+        type: location
+      - name: closing_loc
+        type: location
     comment: |
       Represents a block of ruby code.
 
@@ -418,13 +445,12 @@ nodes:
           def a(&b)
                 ^^
           end
-  - name: BlockVarNode
+  - name: BlockParametersNode
     child_nodes:
       - name: parameters
         type: node
       - name: locals
         type: token[]
-    location: parameters->locals
     comment: |
       Represents a block variable declaration.
 
@@ -448,7 +474,7 @@ nodes:
       - name: call_operator
         type: token?
       - name: message
-        type: token
+        type: token?
       - name: opening
         type: token?
       - name: arguments
@@ -473,6 +499,25 @@ nodes:
 
           foo.bar
           ^^^^^^^
+  - name: CaseNode
+    child_nodes:
+      - name: predicate
+        type: node?
+      - name: conditions
+        type: node[]
+      - name: consequent
+        type: node?
+      - name: case_keyword_loc
+        type: location
+      - name: end_keyword_loc
+        type: location
+    comment: |
+      Represents the use of a case statement.
+
+      case true
+      ^^^^^^^^^
+      when false
+      end
   - name: ClassNode
     child_nodes:
       - name: scope
@@ -545,11 +590,7 @@ nodes:
 
           Foo::Bar = 1
           ^^^^^^^^^^^^
-  - name: ConstantRead
-    child_nodes:
-      - name: name
-        type: token
-    location: name
+  - name: ConstantReadNode
     comment: |
       Represents referencing a constant.
 
@@ -674,30 +715,6 @@ nodes:
             bar(...)
             ^^^^^^^^
           end
-  - name: KeywordStarNode
-    child_nodes:
-      - name: operator
-        type: token
-      - name: expression
-        type: node
-    location: operator->expression
-    comment: |
-      Represents keyword splat method arguments.
-
-          bar(**kwargs)
-          ^^^^^^^^^^^
-  - name: BlockArgumentNode
-    child_nodes:
-      - name: operator
-        type: token
-      - name: expression
-        type: node
-    location: operator->expression
-    comment: |
-      Represents block method arguments.
-
-          bar(&args)
-          ^^^^^^^^^^
   - name: ForwardingParameterNode
     comment: |
       Represents the use of the forwarding parameter in a method, block, or lambda declaration.
@@ -714,7 +731,7 @@ nodes:
 
           super
           ^^^^^
-  - name: GlobalVariableRead
+  - name: GlobalVariableReadNode
     child_nodes:
       - name: name
         type: token
@@ -724,7 +741,7 @@ nodes:
 
           $foo
           ^^^^
-  - name: GlobalVariableWrite
+  - name: GlobalVariableWriteNode
     child_nodes:
       - name: name
         type: token
@@ -791,40 +808,6 @@ nodes:
 
           if foo then bar end
           ^^^^^^^^^^^^^^^^^^^
-  - name: CaseNode
-    child_nodes:
-      - name: case_keyword
-        type: token
-      - name: predicate
-        type: node?
-      - name: conditions
-        type: node[]
-      - name: consequent
-        type: node?
-      - name: end_keyword
-        type: token
-    location: case_keyword->end_keyword
-    comment: |
-      Represents the use of a case statement.
-
-      case true
-      ^^^^^^^^^
-      when false
-      end
-  - name: WhenNode
-    child_nodes:
-      - name: when_keyword
-        type: token
-      - name: conditions
-        type: node[]
-      - name: statements
-        type: node?
-    location: when_keyword->statements|conditions
-    comment: |
-      case true
-      when true
-      ^^^^^^^^^
-      end
   - name: ImaginaryNode
     comment: |
       Represents an imaginary number literal.
@@ -870,20 +853,6 @@ nodes:
 
           /foo #{bar} baz/
           ^^^^^^^^^^^^^^^^
-  - name: InterpolatedXStringNode
-    child_nodes:
-      - name: opening
-        type: token
-      - name: parts
-        type: node[]
-      - name: closing
-        type: token
-    location: opening->closing
-    comment: |
-      Represents an xstring literal that contains interpolation.
-
-          `foo #{bar} baz`
-          ^^^^^^^^^^^^^^^^
   - name: InterpolatedStringNode
     child_nodes:
       - name: opening
@@ -912,6 +881,20 @@ nodes:
 
           :"foo #{bar} baz"
           ^^^^^^^^^^^^^^^^^
+  - name: InterpolatedXStringNode
+    child_nodes:
+      - name: opening
+        type: token
+      - name: parts
+        type: node[]
+      - name: closing
+        type: token
+    location: opening->closing
+    comment: |
+      Represents an xstring literal that contains interpolation.
+
+          `foo #{bar} baz`
+          ^^^^^^^^^^^^^^^^
   - name: KeywordParameterNode
     child_nodes:
       - name: name
@@ -942,6 +925,18 @@ nodes:
           def a(**b)
                 ^^^
           end
+  - name: KeywordStarNode
+    child_nodes:
+      - name: operator
+        type: token
+      - name: expression
+        type: node
+    location: operator->expression
+    comment: |
+      Represents keyword splat method arguments.
+
+          bar(**kwargs)
+          ^^^^^^^^^^^
   - name: LambdaNode
     child_nodes:
       - name: scope
@@ -960,7 +955,7 @@ nodes:
 
           ->(value) { value * 2 }
           ^^^^^^^^^^^^^^^^^^^^^^^
-  - name: LocalVariableRead
+  - name: LocalVariableReadNode
     child_nodes:
       - name: name
         type: token
@@ -972,7 +967,7 @@ nodes:
 
           foo
           ^^^
-  - name: LocalVariableWrite
+  - name: LocalVariableWriteNode
     child_nodes:
       - name: name
         type: token
@@ -1016,6 +1011,10 @@ nodes:
         type: token?
       - name: value
         type: node?
+      - name: lparen_loc
+        type: location?
+      - name: rparen_loc
+        type: location?
     location: targets
     comment: |
       Represents a multi-target expression.
@@ -1082,11 +1081,10 @@ nodes:
     child_nodes:
       - name: target
         type: node
-      - name: operator
-        type: token
       - name: value
         type: node
-    location: target->value
+      - name: operator_loc
+        type: location
     comment: |
       Represents the use of the `||=` operator for assignment.
 
@@ -1111,11 +1109,10 @@ nodes:
     child_nodes:
       - name: left
         type: node
-      - name: operator
-        type: token
       - name: right
         type: node
-    location: left->right
+      - name: operator_loc
+        type: location
     comment: |
       Represents the use of the `||` operator or the `or` keyword.
 
@@ -1144,13 +1141,12 @@ nodes:
           end
   - name: ParenthesesNode
     child_nodes:
-      - name: opening
-        type: token
       - name: statements
-        type: node
-      - name: closing
-        type: token
-    location: opening->closing
+        type: node?
+      - name: opening_loc
+        type: location
+      - name: closing_loc
+        type: location
     comment: |
       Represents a parentesized expression
 
@@ -1186,7 +1182,7 @@ nodes:
 
           END { foo }
           ^^^^^^^^^^^
-  - name: Program
+  - name: ProgramNode
     child_nodes:
       - name: scope
         type: node
@@ -1198,11 +1194,10 @@ nodes:
     child_nodes:
       - name: left
         type: node?
-      - name: range_operator
-        type: token
       - name: right
         type: node?
-    location: left|range_operator->right|range_operator
+      - name: operator_loc
+        type: location
     comment: |
       Represents the use of the `..` or `...` operators.
 
@@ -1231,23 +1226,14 @@ nodes:
         type: token
       - name: closing
         type: token
+      - name: unescaped
+        type: string
     location: opening->closing
     comment: |
       Represents a regular expression literal with no interpolation.
 
           /foo/i
           ^^^^^^
-  - name: RequiredParameterNode
-    child_nodes:
-      - name: name
-        type: token
-    location: name
-    comment: |
-      Represents a required parameter to a method, block, or lambda definition.
-
-          def a(b)
-                ^
-          end
   - name: RequiredDestructuredParameterNode
     child_nodes:
       - name: parameters
@@ -1262,6 +1248,17 @@ nodes:
 
           def foo((bar, baz))
                   ^^^^^^^^^^
+          end
+  - name: RequiredParameterNode
+    child_nodes:
+      - name: name
+        type: token
+    location: name
+    comment: |
+      Represents a required parameter to a method, block, or lambda definition.
+
+          def a(b)
+                ^
           end
   - name: RescueModifierNode
     child_nodes:
@@ -1281,7 +1278,7 @@ nodes:
     child_nodes:
       - name: rescue_keyword
         type: token
-      - name: exception_classes
+      - name: exceptions
         type: node[]
       - name: equal_greater
         type: token?
@@ -1295,9 +1292,11 @@ nodes:
     comment: |
       Represents a rescue statement.
 
+          begin
           rescue
             foo
           ^^^^^^
+          end
   - name: RestParameterNode
     child_nodes:
       - name: operator
@@ -1311,18 +1310,6 @@ nodes:
           def a(*b)
                 ^^
           end
-  - name: StarNode
-    child_nodes:
-      - name: operator
-        type: token
-      - name: expression
-        type: node?
-    location: operator->expression|operator
-    comment: |
-      Represents array splats.
-
-          [*a]
-           ^^
   - name: RetryNode
     comment: |
       Represents the use of the `retry` keyword.
@@ -1341,7 +1328,21 @@ nodes:
 
           return 1
           ^^^^^^^^
-  - name: SClassNode
+  - name: Scope
+    child_nodes:
+      - name: locals
+        type: token[]
+    location: locals
+    comment: |
+      Represents the local variables within a given lexical scope. These are
+      attached to nodes where a new scope is created.
+  - name: SelfNode
+    comment: |
+      Represents the `self` keyword.
+
+          self
+          ^^^^
+  - name: SingletonClassNode
     child_nodes:
       - name: scope
         type: node
@@ -1361,20 +1362,6 @@ nodes:
 
           class << self end
           ^^^^^^^^^^^^^^^^^
-  - name: Scope
-    child_nodes:
-      - name: locals
-        type: token[]
-    location: locals
-    comment: |
-      Represents the local variables within a given lexical scope. These are
-      attached to nodes where a new scope is created.
-  - name: SelfNode
-    comment: |
-      Represents the `self` keyword.
-
-          self
-          ^^^^
   - name: SourceEncodingNode
     comment: |
       Represents the use of the `__ENCODING__` keyword.
@@ -1393,16 +1380,39 @@ nodes:
 
           __LINE__
           ^^^^^^^^
-  - name: Statements
+  - name: SplatNode
+    child_nodes:
+      - name: operator
+        type: token
+      - name: expression
+        type: node?
+    location: operator->expression|operator
+    comment: |
+      Represents the use of the splat operator.
+
+          [*a]
+           ^^
+  - name: StatementsNode
     child_nodes:
       - name: body
         type: node[]
-    location: body
     comment: |
       Represents a set of statements contained within some scope.
 
           foo; bar; baz
           ^^^^^^^^^^^^^
+  - name: StringConcatNode
+    child_nodes:
+      - name: left
+        type: node
+      - name: right
+        type: node
+    location: left->right
+    comment: |
+      Represents the use of compile-time string concatenation.
+
+          "foo" "bar"
+          ^^^^^^^^^^^
   - name: StringInterpolatedNode
     child_nodes:
       - name: opening
@@ -1440,18 +1450,6 @@ nodes:
 
           "foo #{bar} baz"
            ^^^^      ^^^^
-  - name: StringConcatNode
-    child_nodes:
-      - name: left
-        type: node
-      - name: right
-        type: node
-    location: left->right
-    comment: |
-      Represents the use of compile-time string concatenation.
-
-          "foo" "bar"
-          ^^^^^^^^^^^
   - name: SuperNode
     child_nodes:
       - name: keyword
@@ -1481,6 +1479,8 @@ nodes:
         type: token
       - name: closing
         type: token?
+      - name: unescaped
+        type: string
     location: opening|value->closing|value
     comment: |
       Represents a symbol literal or a symbol contained within a `%i` list.
@@ -1490,7 +1490,7 @@ nodes:
 
           %i[foo]
              ^^^
-  - name: Ternary
+  - name: TernaryNode
     child_nodes:
       - name: predicate
         type: node
@@ -1552,9 +1552,9 @@ nodes:
         type: token
       - name: predicate
         type: node
-      - name: statement
+      - name: statements
         type: node
-    location: keyword->statement
+    location: keyword->statements
     comment: |
       Represents the use of the `until` keyword, either in the block form or the modifier form.
 
@@ -1563,15 +1563,29 @@ nodes:
 
           until foo do bar end
           ^^^^^^^^^^^^^^^^^^^^
+  - name: WhenNode
+    child_nodes:
+      - name: when_keyword
+        type: token
+      - name: conditions
+        type: node[]
+      - name: statements
+        type: node?
+    location: when_keyword->statements|conditions
+    comment: |
+      case true
+      when true
+      ^^^^^^^^^
+      end
   - name: WhileNode
     child_nodes:
       - name: keyword
         type: token
       - name: predicate
         type: node
-      - name: statement
+      - name: statements
         type: node
-    location: keyword->statement
+    location: keyword->statements
     comment: |
       Represents the use of the `while` keyword, either in the block form or the modifier form.
 
@@ -1588,6 +1602,8 @@ nodes:
         type: token
       - name: closing
         type: token
+      - name: unescaped
+        type: string
     comment: |
       Represents an xstring literal with no interpolation.
 

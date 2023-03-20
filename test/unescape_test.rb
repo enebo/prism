@@ -94,6 +94,9 @@ module UnescapeTest
       assert_unescape_all("𐀀", "\\u{10000}", "UTF-8")
       assert_unescape_all("𐀐", "\\u{10010}", "UTF-8")
       assert_unescape_all("aĀကတ𐀀𐀐", "\\u{ 61\s100\n1000\t1010\r10000\v10010 }", "UTF-8")
+
+      assert_nil(YARP.unescape_all("\\u{110000}"))
+      assert_nil(YARP.unescape_all("\\u{110000 110001 110002}"))
     end
 
     test "control characters" do
@@ -126,9 +129,9 @@ module UnescapeTest
       end
     end
 
-    test "unnecessary escapes" do
-      assert_unescape_all("\\d", "\\d")
-      assert_unescape_all("\\g", "\\g")
+    test "escaping normal characters" do
+      assert_unescape_all("d", "\\d")
+      assert_unescape_all("g", "\\g")
     end
 
     private

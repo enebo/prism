@@ -90,6 +90,7 @@ module YARP
       KEYWORD_FALSE: :on_kw,
       KEYWORD_FOR: :on_kw,
       KEYWORD_IF: :on_kw,
+      KEYWORD_IF_MODIFIER: :on_kw,
       KEYWORD_IN: :on_kw,
       KEYWORD_MODULE: :on_kw,
       KEYWORD_NEXT: :on_kw,
@@ -98,6 +99,7 @@ module YARP
       KEYWORD_OR: :on_kw,
       KEYWORD_REDO: :on_kw,
       KEYWORD_RESCUE: :on_kw,
+      KEYWORD_RESCUE_MODIFIER: :on_kw,
       KEYWORD_RETRY: :on_kw,
       KEYWORD_RETURN: :on_kw,
       KEYWORD_SELF: :on_kw,
@@ -106,11 +108,15 @@ module YARP
       KEYWORD_TRUE: :on_kw,
       KEYWORD_UNDEF: :on_kw,
       KEYWORD_UNLESS: :on_kw,
+      KEYWORD_UNLESS_MODIFIER: :on_kw,
       KEYWORD_UNTIL: :on_kw,
+      KEYWORD_UNTIL_MODIFIER: :on_kw,
       KEYWORD_WHEN: :on_kw,
       KEYWORD_WHILE: :on_kw,
+      KEYWORD_WHILE_MODIFIER: :on_kw,
       KEYWORD_YIELD: :on_kw,
       LABEL: :on_label,
+      LABEL_END: :on_label_end,
       LAMBDA_BEGIN: :on_tlambeg,
       LESS: :on_op,
       LESS_EQUAL: :on_op,
@@ -123,6 +129,7 @@ module YARP
       NEWLINE: :on_nl,
       NTH_REFERENCE: :on_backref,
       PARENTHESIS_LEFT: :on_lparen,
+      PARENTHESIS_LEFT_PARENTHESES: :on_lparen,
       PARENTHESIS_RIGHT: :on_rparen,
       PERCENT: :on_op,
       PERCENT_EQUAL: :on_op,
@@ -153,8 +160,12 @@ module YARP
       STRING_END: :on_tstring_end,
       SYMBOL_BEGIN: :on_symbeg,
       TILDE: :on_op,
+      UCOLON_COLON: :on_op,
+      UDOT_DOT: :on_op,
+      UDOT_DOT_DOT: :on_op,
       UMINUS: :on_op,
       UPLUS: :on_op,
+      USTAR: :on_op,
       WORDS_SEP: :on_words_sep,
       __END__: :on___end__
     }.freeze
@@ -166,24 +177,24 @@ module YARP
       def location
         self[0]
       end
-  
+
       def event
         self[1]
       end
-  
+
       def value
         self[2]
       end
-  
+
       def state
         self[3]
       end
-  
+
       def state=(val)
         self[3] = val
       end
     end
-  
+
     # Ripper doesn't include the rest of the token in the event, so we need to
     # trim it down to just the content on the first line when comparing.
     class EndContentToken < Token
@@ -191,7 +202,7 @@ module YARP
         [self[0], self[1], self[2][0..self[2].index("\n")], self[3]] == other
       end
     end
-  
+
     # It is extremely non obvious which state the parser is in when comments get
     # dispatched. Because of this we don't both comparing state when comparing
     # against other comment tokens.
@@ -211,11 +222,11 @@ module YARP
     # heredoc that should be appended onto the list of tokens when the heredoc
     # closes.
     module Heredoc
-      # Heredocs that are no dedent heredocs are just a list of tokens. We need
-      # to keep them around so that we can insert them in the correct order back
-      # into the token stream and set the state of the last token to the state
-      # that the heredoc was opened in.
-      class RegularHeredoc
+      # Heredocs that are no dash or tilde heredocs are just a list of tokens.
+      # We need to keep them around so that we can insert them in the correct
+      # order back into the token stream and set the state of the last token to
+      # the state that the heredoc was opened in.
+      class PlainHeredoc
         attr_reader :state, :tokens
 
         def initialize(state)
@@ -230,6 +241,43 @@ module YARP
         def to_a
           tokens.last.state = state
           tokens
+        end
+      end
+
+      # Dash heredocs are a little more complicated. They are a list of tokens
+      # that need to be split on "\\\n" to mimic Ripper's behavior. We also need
+      # to keep track of the state that the heredoc was opened in.
+      class DashHeredoc
+        attr_reader :state, :tokens
+
+        def initialize(state)
+          @state = state
+          @tokens = []
+        end
+
+        def <<(token)
+          tokens << token
+        end
+
+        def to_a
+          tokens.last.state = state
+
+          tokens.each_with_object([]) do |token, results|
+            if token.event == :on_tstring_content
+              lineno = token[0][0]
+              column = token[0][1]
+
+              # Split on "\\\n" to mimic Ripper's behavior. Use a lookbehind to
+              # keep the delimiter in the result.
+              token.value.split(/(?<=[^\\]\\\n)/).each_with_index do |value, index|
+                column = 0 if index > 0
+                results << Token.new([[lineno, column], :on_tstring_content, value, token.state])
+                lineno += value.count("\n")
+              end
+            else
+              results << token
+            end
+          end
         end
       end
 
@@ -260,14 +308,22 @@ module YARP
         # whitespace on plain string content tokens. This allows us to later
         # remove that amount of whitespace from the beginning of each line.
         def <<(token)
-          if dedent_next && token.event == :on_tstring_content && token.value.start_with?(/\s/)
-            token.value.split("\n").each do |line|
-              leading = line[/\A\s*/]
-              @dedent = [dedent, leading.length + (leading.count("\t") * (TAB_WIDTH - 1))].compact.min
+          if token.event == :on_tstring_content
+            token.value.split("\n").each_with_index do |line, index|
+              # Blank lines don't count toward the dedent.
+              next if line.empty?
+
+              if dedent_next || index > 0
+                leading = line[/\A\s*/]
+                @dedent = [dedent, leading.length + (leading.count("\t") * (TAB_WIDTH - 1))].compact.min
+              end
             end
+
+            @dedent_next = true
+          else
+            @dedent_next = false
           end
 
-          @dedent_next = token.event == :on_tstring_content
           tokens << token
         end
 
@@ -276,7 +332,28 @@ module YARP
           # anything to dedent. If there isn't, then we can return the tokens
           # directly since no on_ignored_sp tokens need to be inserted.
           tokens.last.state = state
-          return tokens if dedent.nil? || dedent == 0
+
+          # If every line in the heredoc is blank, we still need to split up the
+          # string content token into multiple tokens.
+          if dedent.nil?
+            results = []
+            tokens.each do |token|
+              if token.event == :on_tstring_content
+                lineno = token[0][0]
+                column = token[0][1]
+
+                token.value.split(/(?<=\n)/).each_with_index do |value, index|
+                  column = 0 if index > 0
+                  results << Token.new([[lineno, column], :on_tstring_content, value, token.state])
+                  lineno += 1
+                end
+              else
+                results << token
+              end
+            end
+
+            return results
+          end
 
           # Otherwise, we're going to run through each token in the list and
           # insert on_ignored_sp tokens for the amount of dedent that we need to
@@ -294,21 +371,39 @@ module YARP
               # Here we're going to split the string on newlines, but maintain
               # the newlines in the resulting array. We'll do that with a look
               # behind assertion.
-              token.value.split(/(?<=\n)/).each_with_index do |line, index|
+              splits = token.value.split(/(?<=\n)/)
+              index = 0
+
+              while index < splits.length
+                line = splits[index]
                 lineno = token[0][0] + index
                 column = token[0][1]
 
+                # Blank lines do not count toward common leading whitespace
+                # calculation and do not need to be dedented.
+                if line == "\n" && (dedent_next || index > 0)
+                  column = 0
+                end
+
+                # If the dedent is 0 and we're not supposed to dedent the next
+                # line or this line doesn't start with whitespace, then we
+                # should concatenate the rest of the string to match ripper.
+                if dedent == 0 && (!dedent_next || !line.start_with?(/\s/))
+                  line = splits[index..].join
+                  index = splits.length
+                end
+
                 # If we are supposed to dedent this line or if this is not the
-                # first line of the string, then we need to insert an
-                # on_ignored_sp token and remove the dedent from the beginning
-                # of the line.
-                if dedent_next || index > 0
+                # first line of the string and this line isn't entirely blank,
+                # then we need to insert an on_ignored_sp token and remove the
+                # dedent from the beginning of the line.
+                if (line != "\n" && dedent > 0) && (dedent_next || index > 0)
                   deleting = 0
                   deleted_chars = []
 
-                  # Gather up all of the characters that we're going to delete,
-                  # stopping when you hit a character that would put you over
-                  # the dedent amount.
+                  # Gather up all of the characters that we're going to
+                  # delete, stopping when you hit a character that would put
+                  # you over the dedent amount.
                   line.each_char do |char|
                     break if (deleting += char == "\t" ? TAB_WIDTH : 1) > dedent
                     deleted_chars << char
@@ -321,11 +416,12 @@ module YARP
                     line.delete_prefix!(ignored)
 
                     results << Token.new([[lineno, 0], :on_ignored_sp, ignored, token[3]])
-                    column += ignored.length
+                    column = ignored.length
                   end
                 end
 
                 results << Token.new([[lineno, column], token[1], line, token[3]]) unless line.empty?
+                index += 1
               end
 
               dedent_next = true
@@ -342,10 +438,13 @@ module YARP
       # Here we will split between the two types of heredocs and return the
       # object that will store their tokens.
       def self.build(opening, state)
-        if opening.value[2] == "~"
+        case opening.value[2]
+        when "~"
           DedentingHeredoc.new(state)
+        when "-"
+          DashHeredoc.new(state)
         else
-          RegularHeredoc.new(state)
+          PlainHeredoc.new(state)
         end
       end
     end
@@ -407,7 +506,7 @@ module YARP
             # output the state as the previous state, solely for the sake of
             # comparison.
             previous_token = result_value[index - 1][0]
-            lex_state = 
+            lex_state =
               if RIPPER.fetch(previous_token.type) == :on_embexpr_end
                 # If the previous token is embexpr_end, then we have to do even
                 # more processing. The end of an embedded expression sets the
@@ -459,7 +558,7 @@ module YARP
           tokens << token
 
           case event
-          when :on_nl, :on_ignored_nl
+          when :on_nl, :on_ignored_nl, :on_comment
             heredocs.each do |heredoc|
               tokens.concat(heredoc.to_a)
             end

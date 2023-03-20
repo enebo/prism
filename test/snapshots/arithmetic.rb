@@ -1,0 +1,89 @@
+ProgramNode(
+  Scope([]),
+  StatementsNode(
+    [CallNode(
+       nil,
+       nil,
+       IDENTIFIER("foo"),
+       nil,
+       ArgumentsNode(
+         [CallNode(
+            CallNode(nil, nil, IDENTIFIER("bar"), nil, nil, nil, nil, "bar"),
+            nil,
+            BANG("!"),
+            nil,
+            nil,
+            nil,
+            nil,
+            "!"
+          )]
+       ),
+       nil,
+       nil,
+       "foo"
+     ),
+     CallNode(
+       CallNode(
+         CallNode(nil, nil, IDENTIFIER("foo"), nil, nil, nil, nil, "foo"),
+         nil,
+         UMINUS("-"),
+         nil,
+         nil,
+         nil,
+         nil,
+         "-@"
+       ),
+       nil,
+       STAR("*"),
+       nil,
+       ArgumentsNode(
+         [CallNode(nil, nil, IDENTIFIER("bar"), nil, nil, nil, nil, "bar")]
+       ),
+       nil,
+       nil,
+       "*"
+     ),
+     CallNode(
+       CallNode(
+         CallNode(nil, nil, IDENTIFIER("foo"), nil, nil, nil, nil, "foo"),
+         nil,
+         UPLUS("+"),
+         nil,
+         nil,
+         nil,
+         nil,
+         "+@"
+       ),
+       nil,
+       STAR_STAR("**"),
+       nil,
+       ArgumentsNode(
+         [CallNode(nil, nil, IDENTIFIER("bar"), nil, nil, nil, nil, "bar")]
+       ),
+       nil,
+       nil,
+       "**"
+     ),
+     CallNode(
+       nil,
+       nil,
+       IDENTIFIER("foo"),
+       nil,
+       ArgumentsNode(
+         [CallNode(
+            CallNode(nil, nil, IDENTIFIER("bar"), nil, nil, nil, nil, "bar"),
+            nil,
+            TILDE("~"),
+            nil,
+            nil,
+            nil,
+            nil,
+            "~"
+          )]
+       ),
+       nil,
+       nil,
+       "foo"
+     )]
+  )
+)

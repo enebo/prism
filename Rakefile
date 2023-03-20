@@ -10,6 +10,9 @@ if RUBY_ENGINE != 'jruby'
   RubyMemcheck.config(binary_name: "yarp")
 end
 
+Rake.add_rakelib("tasks")
+
+
 task compile: :make
 
 if RUBY_ENGINE == 'jruby'
@@ -64,6 +67,7 @@ TEMPLATES = [
   "src/prettyprint.c",
   "src/serialize.c",
   "src/token_type.c",
+  "src/util/yp_strspn.c"
 ]
 
 desc "Generate all ERB template based files"
@@ -94,61 +98,4 @@ TEMPLATES.each do |filepath|
     require_relative "bin/template"
     template(t.name, locals)
   end
-end
-
-desc "Lex ruby/spec files and compare with lex_compat"
-task lex: :compile do
-  $:.unshift(File.expand_path("lib", __dir__))
-  require "yarp"
-  require "ripper"
-  require "timeout"
-
-  passing = 0
-  failing = 0
-
-  colorize = ->(code, string) { "\033[#{code}m#{string}\033[0m" }
-  fail_filepath = ->(filepath) {
-    warn(filepath) if ENV["VERBOSE"]
-    print colorize.call(31, "E")
-    failing += 1
-  }
-
-  filepaths =
-    if ENV["FILEPATHS"]
-      Dir[ENV["FILEPATHS"]]
-    else
-      Dir["vendor/spec/**/*.rb"]
-    end
-
-  filepaths.each.with_index(1) do |filepath, index|
-    print "#{filepath} " if ENV["CI"]
-    source = File.read(filepath)
-
-    begin
-      Timeout.timeout(1) do
-        lexed = YARP.lex_compat(source)
-
-        if lexed.errors.empty? && YARP.lex_ripper(source) == lexed.value
-          print colorize.call(32, ".")
-          passing += 1
-        else
-          fail_filepath.call(filepath)
-        end
-
-        puts if ENV["CI"]
-      rescue
-        fail_filepath.call(filepath)
-      end
-    rescue Timeout::Error
-      fail_filepath.call(filepath)
-    end
-  end
-
-  puts <<~RESULTS
-
-
-    PASSING=#{passing}
-    FAILING=#{failing}
-    PERCENT=#{(passing.to_f / (passing + failing) * 100).round(2)}%
-  RESULTS
 end

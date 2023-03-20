@@ -7,7 +7,7 @@ class ErrorsTest < Test::Unit::TestCase
 
   test "constant path with invalid token after" do
     expected = ConstantPathNode(
-      ConstantRead(CONSTANT("A")),
+      ConstantReadNode(),
       COLON_COLON("::"),
       MissingNode()
     )
@@ -19,13 +19,13 @@ class ErrorsTest < Test::Unit::TestCase
     expected = ModuleNode(
       Scope([]),
       KEYWORD_MODULE("module"),
-      ConstantRead(CONSTANT("Parent")),
-      Statements(
+      ConstantReadNode(),
+      StatementsNode(
         [ModuleNode(
            Scope([]),
            KEYWORD_MODULE("module"),
            MissingNode(),
-           Statements([]),
+           StatementsNode([]),
            MISSING("")
          )]
       ),
@@ -41,7 +41,7 @@ class ErrorsTest < Test::Unit::TestCase
     expected = ForNode(
       MissingNode(),
       expression("1..10"),
-      Statements([expression("i")]),
+      StatementsNode([expression("i")]),
       Location(),
       Location(),
       nil,
@@ -55,7 +55,7 @@ class ErrorsTest < Test::Unit::TestCase
     expected = ForNode(
       MissingNode(),
       MissingNode(),
-      Statements([]),
+      StatementsNode([]),
       Location(),
       Location(),
       nil,
@@ -67,7 +67,7 @@ class ErrorsTest < Test::Unit::TestCase
 
   test "pre execution missing {" do
     expected = PreExecutionNode(
-      Statements([expression("1")]),
+      StatementsNode([expression("1")]),
       Location(),
       Location(),
       Location()
@@ -78,7 +78,7 @@ class ErrorsTest < Test::Unit::TestCase
 
   test "pre execution context" do
     expected = PreExecutionNode(
-      Statements([
+      StatementsNode([
         CallNode(
           expression("1"),
           nil,
@@ -131,15 +131,15 @@ class ErrorsTest < Test::Unit::TestCase
   end
 
   test "unterminated parenthesized expression" do
-    assert_errors expression('(1 + 2'), '(1 + 2', ["Expected a closing parenthesis."]
+    assert_errors expression('(1 + 2'), '(1 + 2', ["Expected to be able to parse an expression.", "Expected a closing parenthesis."]
   end
 
   test "(1, 2, 3)" do
-    assert_errors expression("(1, 2, 3)"), "(1, 2, 3)", ["Expected a closing parenthesis."]
+    assert_errors expression("(1, 2, 3)"), "(1, 2, 3)", ["Expected to be able to parse an expression.", "Expected a closing parenthesis."]
   end
 
   test "return(1, 2, 3)" do
-    errors = ["Expected a closing parenthesis."]
+    errors = ["Expected to be able to parse an expression.", "Expected a closing parenthesis."]
 
     assert_errors expression("return(1, 2, 3)"), "return(1, 2, 3)", errors
   end
@@ -149,7 +149,7 @@ class ErrorsTest < Test::Unit::TestCase
   end
 
   test "next(1, 2, 3)" do
-    errors = ["Expected a closing parenthesis."]
+    errors = ["Expected to be able to parse an expression.", "Expected a closing parenthesis."]
 
     assert_errors expression("next(1, 2, 3)"), "next(1, 2, 3)", errors
   end
@@ -159,7 +159,7 @@ class ErrorsTest < Test::Unit::TestCase
   end
 
   test "break(1, 2, 3)" do
-    errors = ["Expected a closing parenthesis."]
+    errors = ["Expected to be able to parse an expression.", "Expected a closing parenthesis."]
 
     assert_errors expression("break(1, 2, 3)"), "break(1, 2, 3)", errors
   end
@@ -177,12 +177,12 @@ class ErrorsTest < Test::Unit::TestCase
   end
 
   test "top level constant with downcased identifier" do
-    expected = ConstantPathNode(nil, COLON_COLON("::"), ConstantRead(MISSING("")))
+    expected = ConstantPathNode(nil, UCOLON_COLON("::"), ConstantReadNode())
     assert_errors expected, "::foo", ["Expected a constant after ::."]
   end
 
   test "top level constant starting with downcased identifier" do
-    expected = ConstantPathNode(nil, COLON_COLON("::"), ConstantRead(MISSING("")))
+    expected = ConstantPathNode(nil, UCOLON_COLON("::"), ConstantReadNode())
     assert_errors expected, "::foo::A", ["Expected a constant after ::."]
   end
 
@@ -226,10 +226,10 @@ class ErrorsTest < Test::Unit::TestCase
       nil,
       nil,
       BlockNode(
-        BRACE_LEFT("{"),
         nil,
-        Statements([CallNode(nil, nil, IDENTIFIER("x"), nil, nil, nil, nil, "x")]),
-        MISSING("")
+        StatementsNode([CallNode(nil, nil, IDENTIFIER("x"), nil, nil, nil, nil, "x")]),
+        Location(),
+        Location()
       ),
       "each"
     )
@@ -261,8 +261,8 @@ class ErrorsTest < Test::Unit::TestCase
             )],
            nil
          ),
-         StarNode(
-           STAR("*"),
+         SplatNode(
+           USTAR("*"),
            CallNode(nil, nil, IDENTIFIER("args"), nil, nil, nil, nil, "args")
          )]
       ),
@@ -271,7 +271,7 @@ class ErrorsTest < Test::Unit::TestCase
       "a"
     )
 
-    assert_errors expected, "a(**kwargs, *args)", ["Expected a key in the hash literal.", "Unexpected splat argument after double splat."]
+    assert_errors expected, "a(**kwargs, *args)", ["Unexpected splat argument after double splat."]
   end
 
   test "arguments after block" do
@@ -280,13 +280,10 @@ class ErrorsTest < Test::Unit::TestCase
       nil,
       IDENTIFIER("a"),
       PARENTHESIS_LEFT("("),
-      ArgumentsNode(
-        [BlockArgumentNode(
-           AMPERSAND("&"),
-           CallNode(nil, nil, IDENTIFIER("block"), nil, nil, nil, nil, "block")
-         ),
-         CallNode(nil, nil, IDENTIFIER("foo"), nil, nil, nil, nil, "foo")]
-      ),
+      ArgumentsNode([
+        BlockArgumentNode(expression("block"), Location()),
+        expression("foo")
+      ]),
       PARENTHESIS_RIGHT(")"),
       nil,
       "a"
@@ -303,8 +300,8 @@ class ErrorsTest < Test::Unit::TestCase
         IDENTIFIER("foo"),
         PARENTHESIS_LEFT("("),
         ArgumentsNode(
-          [StarNode(
-             STAR("*"),
+          [SplatNode(
+             USTAR("*"),
              CallNode(nil, nil, IDENTIFIER("bar"), nil, nil, nil, nil, "bar")
            )]
         ),
@@ -332,14 +329,14 @@ class ErrorsTest < Test::Unit::TestCase
         [HashNode(
            nil,
            [AssocNode(
-              SymbolNode(nil, LABEL("foo"), LABEL_END(":")),
+              SymbolNode(nil, LABEL("foo"), LABEL_END(":"), "foo"),
               CallNode(nil, nil, IDENTIFIER("bar"), nil, nil, nil, nil, "bar"),
               nil
             )],
            nil
          ),
-         StarNode(
-           STAR("*"),
+         SplatNode(
+           USTAR("*"),
            CallNode(nil, nil, IDENTIFIER("args"), nil, nil, nil, nil, "args")
          )]
       ),
@@ -348,7 +345,7 @@ class ErrorsTest < Test::Unit::TestCase
       "a"
     )
 
-    assert_errors expected, "a(foo: bar, *args)", ["Expected a key in the hash literal.", "Unexpected splat argument after double splat."]
+    assert_errors expected, "a(foo: bar, *args)", ["Unexpected splat argument after double splat."]
   end
 
   test "module definition in method body" do
@@ -356,12 +353,12 @@ class ErrorsTest < Test::Unit::TestCase
       IDENTIFIER("foo"),
       nil,
       ParametersNode([], [], nil, [], nil, nil),
-      Statements(
+      StatementsNode(
         [ModuleNode(
            Scope([]),
            KEYWORD_MODULE("module"),
-           ConstantRead(CONSTANT("A")),
-           Statements([]),
+           ConstantReadNode(),
+           StatementsNode([]),
            KEYWORD_END("end")
          )]
       ),
@@ -382,7 +379,7 @@ class ErrorsTest < Test::Unit::TestCase
       IDENTIFIER("foo"),
       nil,
       ParametersNode([], [], nil, [], nil, nil),
-      Statements(
+      StatementsNode(
         [CallNode(
            nil,
            nil,
@@ -391,18 +388,18 @@ class ErrorsTest < Test::Unit::TestCase
            nil,
            nil,
            BlockNode(
-             KEYWORD_DO("do"),
              nil,
-             Statements(
+             StatementsNode(
                [ModuleNode(
                   Scope([]),
                   KEYWORD_MODULE("module"),
-                  ConstantRead(CONSTANT("Foo")),
-                  Statements([]),
+                  ConstantReadNode(),
+                  StatementsNode([]),
                   KEYWORD_END("end")
                 )]
              ),
-             KEYWORD_END("end")
+             Location(),
+             Location()
            ),
            "bar"
          )]
@@ -425,25 +422,111 @@ class ErrorsTest < Test::Unit::TestCase
     ", ["Module definition in method body"]
   end
 
+  test "bad arguments" do
+    expected = DefNode(
+      IDENTIFIER("foo"),
+      nil,
+      ParametersNode([], [], nil, [], nil, nil),
+      StatementsNode([]),
+      Scope([]),
+      Location(),
+      nil,
+      Location(),
+      Location(),
+      nil,
+      Location()
+    )
+
+    assert_errors expected, "def foo(A, @a, $A, @@a);end", [
+      "Formal argument cannot be a constant",
+      "Formal argument cannot be an instance variable",
+      "Formal argument cannot be a global variable",
+      "Formal argument cannot be a class variable",
+    ]
+  end
+
+  test "cannot assign to a reserved numbered parameter" do
+    expected = BeginNode(
+      KEYWORD_BEGIN("begin"),
+      StatementsNode(
+        [LocalVariableWriteNode(
+           IDENTIFIER("_1"),
+           EQUAL("="),
+           SymbolNode(SYMBOL_BEGIN(":"), IDENTIFIER("a"), nil, "a")
+         ),
+         LocalVariableWriteNode(
+           IDENTIFIER("_2"),
+           EQUAL("="),
+           SymbolNode(SYMBOL_BEGIN(":"), IDENTIFIER("a"), nil, "a")
+         ),
+         LocalVariableWriteNode(
+           IDENTIFIER("_3"),
+           EQUAL("="),
+           SymbolNode(SYMBOL_BEGIN(":"), IDENTIFIER("a"), nil, "a")
+         ),
+         LocalVariableWriteNode(
+           IDENTIFIER("_4"),
+           EQUAL("="),
+           SymbolNode(SYMBOL_BEGIN(":"), IDENTIFIER("a"), nil, "a")
+         ),
+         LocalVariableWriteNode(
+           IDENTIFIER("_5"),
+           EQUAL("="),
+           SymbolNode(SYMBOL_BEGIN(":"), IDENTIFIER("a"), nil, "a")
+         ),
+         LocalVariableWriteNode(
+           IDENTIFIER("_6"),
+           EQUAL("="),
+           SymbolNode(SYMBOL_BEGIN(":"), IDENTIFIER("a"), nil, "a")
+         ),
+         LocalVariableWriteNode(
+           IDENTIFIER("_7"),
+           EQUAL("="),
+           SymbolNode(SYMBOL_BEGIN(":"), IDENTIFIER("a"), nil, "a")
+         ),
+         LocalVariableWriteNode(
+           IDENTIFIER("_8"),
+           EQUAL("="),
+           SymbolNode(SYMBOL_BEGIN(":"), IDENTIFIER("a"), nil, "a")
+         ),
+         LocalVariableWriteNode(
+           IDENTIFIER("_9"),
+           EQUAL("="),
+           SymbolNode(SYMBOL_BEGIN(":"), IDENTIFIER("a"), nil, "a")
+         ),
+         LocalVariableWriteNode(
+           IDENTIFIER("_10"),
+           EQUAL("="),
+           SymbolNode(SYMBOL_BEGIN(":"), IDENTIFIER("a"), nil, "a")
+         )]
+      ),
+      nil,
+      nil,
+      nil,
+      KEYWORD_END("end")
+    )
+    assert_errors expected, "
+    begin
+      _1=:a;_2=:a;_3=:a;_4=:a;_5=:a
+      _6=:a;_7=:a;_8=:a;_9=:a;_10=:a
+    end
+    ", Array.new(9, "reserved for numbered parameter")
+  end
+
   private
 
   def assert_errors(expected, source, errors)
     assert_nil Ripper.sexp_raw(source)
 
     result = YARP.parse(source)
-    result => YARP::ParseResult[value: YARP::Program[statements: YARP::Statements[body: [*, node]]]]
+    result => YARP::ParseResult[value: YARP::ProgramNode[statements: YARP::StatementsNode[body: [*, node]]]]
 
-    assert_equal expected, node
-    assert_equal errors, result.errors.map(&:message)
+    assert_equal_nodes(expected, node, compare_location: false)
+    assert_equal(errors, result.errors.map(&:message))
   end
 
   def expression(source)
-    YARP.parse(source) => YARP::ParseResult[value: YARP::Program[statements: YARP::Statements[body: [*, node]]]]
+    YARP.parse(source) => YARP::ParseResult[value: YARP::ProgramNode[statements: YARP::StatementsNode[body: [*, node]]]]
     node
-  end
-
-  # This method is just named this way to mirror the other DSL methods.
-  def Location()
-    YARP::Location.new(0, 0)
   end
 end

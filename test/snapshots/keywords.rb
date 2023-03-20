@@ -1,0 +1,11 @@
+ProgramNode(
+  Scope([]),
+  StatementsNode(
+    [RedoNode(),
+     RetryNode(),
+     SelfNode(),
+     SourceEncodingNode(),
+     SourceFileNode(),
+     SourceLineNode()]
+  )
+)
