@@ -94,4 +94,18 @@ A::B::C :foo
 
 A::B::C(:foo)
 
+A::B::C(:foo) { }
+
 foo("a": -1)
+
+foo bar: { baz: qux do end }
+
+foo bar: { **kw do end }
+
+foo "#{bar.map do "baz" end}" do end
+
+foo class Bar baz do end end
+
+foo module Bar baz do end end
+
+foo [baz do end]

@@ -16,6 +16,8 @@ The key of the comment can be either "encoding" or "coding". The value of the co
 * `ascii-8bit`
 * `big5`
 * `binary`
+* `cp932`
+* `euc-jp`
 * `iso-8859-1`
 * `iso-8859-2`
 * `iso-8859-3`
@@ -31,8 +33,10 @@ The key of the comment can be either "encoding" or "coding". The value of the co
 * `iso-8859-14`
 * `iso-8859-15`
 * `iso-8859-16`
+* `shift_jis`
 * `us-ascii`
 * `utf-8`
+* `windows-31j`
 * `windows-1251`
 * `windows-1252`
 
@@ -51,6 +55,7 @@ If the user-provided callback function returns `NULL` (the value also provided b
 // invalid for the encoding and type.
 typedef struct {
   const char *name;
+  size_t (*char_width)(const char *c);
   size_t (*alpha_char)(const char *c);
   size_t (*alnum_char)(const char *c);
   bool (*isupper_char)(const char *c);

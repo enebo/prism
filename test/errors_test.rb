@@ -226,6 +226,7 @@ class ErrorsTest < Test::Unit::TestCase
       nil,
       nil,
       BlockNode(
+        Scope([]),
         nil,
         StatementsNode([CallNode(nil, nil, IDENTIFIER("x"), nil, nil, nil, nil, "x")]),
         Location(),
@@ -352,7 +353,7 @@ class ErrorsTest < Test::Unit::TestCase
     expected = DefNode(
       IDENTIFIER("foo"),
       nil,
-      ParametersNode([], [], nil, [], nil, nil),
+      nil,
       StatementsNode(
         [ModuleNode(
            Scope([]),
@@ -378,7 +379,7 @@ class ErrorsTest < Test::Unit::TestCase
     expected = DefNode(
       IDENTIFIER("foo"),
       nil,
-      ParametersNode([], [], nil, [], nil, nil),
+      nil,
       StatementsNode(
         [CallNode(
            nil,
@@ -388,6 +389,7 @@ class ErrorsTest < Test::Unit::TestCase
            nil,
            nil,
            BlockNode(
+             Scope([]),
              nil,
              StatementsNode(
                [ModuleNode(
@@ -513,12 +515,52 @@ class ErrorsTest < Test::Unit::TestCase
     ", Array.new(9, "reserved for numbered parameter")
   end
 
+  test "do not allow trailing commas in method parameters" do
+    expected = DefNode(
+      IDENTIFIER("foo"),
+      nil,
+      ParametersNode(
+        [RequiredParameterNode(IDENTIFIER("a")), RequiredParameterNode(IDENTIFIER("b")), RequiredParameterNode(IDENTIFIER("c"))],
+        [],
+        nil,
+        [],
+        nil,
+        nil
+      ),
+      StatementsNode([]),
+      Scope([IDENTIFIER("a"), IDENTIFIER("b"), IDENTIFIER("c")]),
+      Location(),
+      nil,
+      Location(),
+      Location(),
+      nil,
+      Location()
+    )
+    assert_errors expected, "def foo(a,b,c,);end", [
+      "Unexpected ','."
+    ]
+  end
+
+  test "do not allow trailing commas in lambda parameters" do
+    expected = LambdaNode(
+      Scope([IDENTIFIER("a"), IDENTIFIER("b")]),
+      MINUS_GREATER("->"),
+      PARENTHESIS_LEFT("("),
+      BlockParametersNode(ParametersNode([RequiredParameterNode(IDENTIFIER("a")), RequiredParameterNode(IDENTIFIER("b"))], [], nil, [], nil, nil), []),
+      PARENTHESIS_RIGHT(")"),
+      StatementsNode([])
+    )
+    assert_errors expected, "-> (a, b, ) {}", [
+      "Unexpected ','."
+    ]
+  end
+
   private
 
   def assert_errors(expected, source, errors)
     assert_nil Ripper.sexp_raw(source)
 
-    result = YARP.parse(source)
+    result = YARP.parse_dup(source)
     result => YARP::ParseResult[value: YARP::ProgramNode[statements: YARP::StatementsNode[body: [*, node]]]]
 
     assert_equal_nodes(expected, node, compare_location: false)
@@ -526,7 +568,7 @@ class ErrorsTest < Test::Unit::TestCase
   end
 
   def expression(source)
-    YARP.parse(source) => YARP::ParseResult[value: YARP::ProgramNode[statements: YARP::StatementsNode[body: [*, node]]]]
+    YARP.parse_dup(source) => YARP::ParseResult[value: YARP::ProgramNode[statements: YARP::StatementsNode[body: [*, node]]]]
     node
   end
 end

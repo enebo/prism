@@ -46,3 +46,14 @@ foo[bar]
 
 foo[bar] = baz
 
+[**{}]
+
+[**kw]
+
+[1, **kw]
+
+[1, **kw, **{}, **kw]
+
+[
+  foo => bar,
+]

@@ -179,6 +179,7 @@ typedef enum {
   YP_CONTEXT_BLOCK_BRACES,   // expressions in block arguments using braces
   YP_CONTEXT_BLOCK_KEYWORDS, // expressions in block arguments using do..end
   YP_CONTEXT_CASE_WHEN,      // a case when statements
+  YP_CONTEXT_CASE_IN,        // a case in statements
   YP_CONTEXT_CLASS,          // a class declaration
   YP_CONTEXT_DEF,            // a method definition
   YP_CONTEXT_DEF_PARAMS,     // a method definition's parameters
@@ -231,6 +232,7 @@ typedef struct yp_comment {
 // invalid for the encoding and type.
 typedef struct {
   const char *name;
+  size_t (*char_width)(const char *c);
   size_t (*alpha_char)(const char *c);
   size_t (*alnum_char)(const char *c);
   bool (*isupper_char)(const char *c);

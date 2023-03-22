@@ -8,6 +8,7 @@ class EncodingTest < Test::Unit::TestCase
     ascii-8bit
     big5
     binary
+    euc-jp
     iso-8859-1
     iso-8859-2
     iso-8859-3
@@ -23,13 +24,15 @@ class EncodingTest < Test::Unit::TestCase
     iso-8859-14
     iso-8859-15
     iso-8859-16
+    shift_jis
     us-ascii
     utf-8
+    windows-31j
     windows-1251
     windows-1252
   ].each do |encoding|
     test encoding do
-      result = YARP.parse("# encoding: #{encoding}\nident")
+      result = YARP.parse_dup("# encoding: #{encoding}\nident")
       actual = result.value.statements.body.first.message.value.encoding
       assert_equal Encoding.find(encoding), actual
     end

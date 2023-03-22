@@ -189,10 +189,6 @@ module YARP
       def state
         self[3]
       end
-
-      def state=(val)
-        self[3] = val
-      end
     end
 
     # Ripper doesn't include the rest of the token in the event, so we need to
@@ -212,6 +208,18 @@ module YARP
       end
     end
 
+    # Heredoc end tokens are emitted in an odd order, so we don't compare the
+    # state on them.
+    class HeredocEndToken < Token
+      def ==(other)
+        self[0...-1] == other[0...-1]
+      end
+    end
+
+    # Ident tokens for the most part are exactly the same, except sometimes we
+    # know an ident is a local when ripper doesn't (when they are introduced
+    # through named captures in regular expressions). In that case we don't
+    # compare the state.
     class IdentToken < Token
       def ==(other)
         self[0...-1] == other[0...-1]
@@ -227,10 +235,9 @@ module YARP
       # order back into the token stream and set the state of the last token to
       # the state that the heredoc was opened in.
       class PlainHeredoc
-        attr_reader :state, :tokens
+        attr_reader :tokens
 
-        def initialize(state)
-          @state = state
+        def initialize
           @tokens = []
         end
 
@@ -239,7 +246,6 @@ module YARP
         end
 
         def to_a
-          tokens.last.state = state
           tokens
         end
       end
@@ -248,10 +254,10 @@ module YARP
       # that need to be split on "\\\n" to mimic Ripper's behavior. We also need
       # to keep track of the state that the heredoc was opened in.
       class DashHeredoc
-        attr_reader :state, :tokens
+        attr_reader :split, :tokens
 
-        def initialize(state)
-          @state = state
+        def initialize(split)
+          @split = split
           @tokens = []
         end
 
@@ -260,19 +266,34 @@ module YARP
         end
 
         def to_a
-          tokens.last.state = state
+          embexpr_balance = 0
 
           tokens.each_with_object([]) do |token, results|
-            if token.event == :on_tstring_content
-              lineno = token[0][0]
-              column = token[0][1]
+            case token.event
+            when :on_embexpr_beg
+              embexpr_balance += 1
+              results << token
+            when :on_embexpr_end
+              embexpr_balance -= 1
+              results << token
+            when :on_tstring_content
+              if embexpr_balance == 0
+                lineno = token[0][0]
+                column = token[0][1]
 
-              # Split on "\\\n" to mimic Ripper's behavior. Use a lookbehind to
-              # keep the delimiter in the result.
-              token.value.split(/(?<=[^\\]\\\n)/).each_with_index do |value, index|
-                column = 0 if index > 0
-                results << Token.new([[lineno, column], :on_tstring_content, value, token.state])
-                lineno += value.count("\n")
+                if split
+                  # Split on "\\\n" to mimic Ripper's behavior. Use a lookbehind
+                  # to keep the delimiter in the result.
+                  token.value.split(/(?<=[^\\]\\\n)/).each_with_index do |value, index|
+                    column = 0 if index > 0
+                    results << Token.new([[lineno, column], :on_tstring_content, value, token.state])
+                    lineno += value.count("\n")
+                  end
+                else
+                  results << token
+                end
+              else
+                results << token
               end
             else
               results << token
@@ -294,58 +315,66 @@ module YARP
       class DedentingHeredoc
         TAB_WIDTH = 8
 
-        attr_reader :state, :tokens, :dedent_next, :dedent
+        attr_reader :tokens, :dedent_next, :dedent, :embexpr_balance
 
-        def initialize(state)
-          @state = state
+        def initialize
           @tokens = []
-
           @dedent_next = true
           @dedent = nil
+          @embexpr_balance = 0
         end
 
         # As tokens are coming in, we track the minimum amount of common leading
         # whitespace on plain string content tokens. This allows us to later
         # remove that amount of whitespace from the beginning of each line.
         def <<(token)
-          if token.event == :on_tstring_content
-            token.value.split("\n").each_with_index do |line, index|
-              # Blank lines don't count toward the dedent.
-              next if line.empty?
+          case token.event
+          when :on_embexpr_beg
+            @embexpr_balance += 1
+          when :on_embexpr_end
+            @embexpr_balance -= 1
+          when :on_tstring_content
+            if embexpr_balance == 0
+              token.value.split("\n").each_with_index do |line, index|
+                next if line.empty? || !(dedent_next || index > 0)
 
-              if dedent_next || index > 0
                 leading = line[/\A\s*/]
                 @dedent = [dedent, leading.length + (leading.count("\t") * (TAB_WIDTH - 1))].compact.min
               end
             end
-
-            @dedent_next = true
-          else
-            @dedent_next = false
           end
 
+          @dedent_next = token.event == :on_tstring_content && embexpr_balance == 0
           tokens << token
         end
 
         def to_a
-          # First set the final state correctly. Next, check if there is
-          # anything to dedent. If there isn't, then we can return the tokens
-          # directly since no on_ignored_sp tokens need to be inserted.
-          tokens.last.state = state
-
           # If every line in the heredoc is blank, we still need to split up the
           # string content token into multiple tokens.
           if dedent.nil?
             results = []
-            tokens.each do |token|
-              if token.event == :on_tstring_content
-                lineno = token[0][0]
-                column = token[0][1]
+            embexpr_balance = 0
 
-                token.value.split(/(?<=\n)/).each_with_index do |value, index|
-                  column = 0 if index > 0
-                  results << Token.new([[lineno, column], :on_tstring_content, value, token.state])
-                  lineno += 1
+            tokens.each do |token|
+              case token.event
+              when :on_embexpr_beg
+                embexpr_balance += 1
+                results << token
+              when :on_embexpr_end
+                embexpr_balance -= 1
+                results << token
+              when :on_tstring_content
+                if embexpr_balance == 0
+                  lineno = token[0][0]
+                  column = token[0][1]
+
+                  token.value.split(/(?<=\n)/).each_with_index do |value, index|
+                    column = 0 if index > 0
+                    results << Token.new([[lineno, column], :on_tstring_content, value, token.state])
+                    lineno += 1
+                  end
+                else
+                  results << token
                 end
               else
                 results << token
@@ -361,74 +390,85 @@ module YARP
           # each line of plain string content tokens.
           results = []
           dedent_next = true
+          embexpr_balance = 0
 
           tokens.each do |token|
             # Notice that the structure of this conditional largely matches the
             # whitespace calculation we performed above. This is because
             # checking if the subsequent token needs to be dedented is common to
             # both the dedent calculation and the ignored_sp insertion.
-            if token.event == :on_tstring_content
-              # Here we're going to split the string on newlines, but maintain
-              # the newlines in the resulting array. We'll do that with a look
-              # behind assertion.
-              splits = token.value.split(/(?<=\n)/)
-              index = 0
+            case token.event
+            when :on_embexpr_beg
+              embexpr_balance += 1
+              results << token
+            when :on_embexpr_end
+              embexpr_balance -= 1
+              results << token
+            when :on_tstring_content
+              if embexpr_balance == 0
+                # Here we're going to split the string on newlines, but maintain
+                # the newlines in the resulting array. We'll do that with a look
+                # behind assertion.
+                splits = token.value.split(/(?<=\n)/)
+                index = 0
 
-              while index < splits.length
-                line = splits[index]
-                lineno = token[0][0] + index
-                column = token[0][1]
+                while index < splits.length
+                  line = splits[index]
+                  lineno = token[0][0] + index
+                  column = token[0][1]
 
-                # Blank lines do not count toward common leading whitespace
-                # calculation and do not need to be dedented.
-                if line == "\n" && (dedent_next || index > 0)
-                  column = 0
-                end
-
-                # If the dedent is 0 and we're not supposed to dedent the next
-                # line or this line doesn't start with whitespace, then we
-                # should concatenate the rest of the string to match ripper.
-                if dedent == 0 && (!dedent_next || !line.start_with?(/\s/))
-                  line = splits[index..].join
-                  index = splits.length
-                end
-
-                # If we are supposed to dedent this line or if this is not the
-                # first line of the string and this line isn't entirely blank,
-                # then we need to insert an on_ignored_sp token and remove the
-                # dedent from the beginning of the line.
-                if (line != "\n" && dedent > 0) && (dedent_next || index > 0)
-                  deleting = 0
-                  deleted_chars = []
-
-                  # Gather up all of the characters that we're going to
-                  # delete, stopping when you hit a character that would put
-                  # you over the dedent amount.
-                  line.each_char do |char|
-                    break if (deleting += char == "\t" ? TAB_WIDTH : 1) > dedent
-                    deleted_chars << char
+                  # Blank lines do not count toward common leading whitespace
+                  # calculation and do not need to be dedented.
+                  if line == "\n" && (dedent_next || index > 0)
+                    column = 0
                   end
 
-                  # If we have something to delete, then delete it from the
-                  # string and insert an on_ignored_sp token.
-                  if deleted_chars.any?
-                    ignored = deleted_chars.join
-                    line.delete_prefix!(ignored)
-
-                    results << Token.new([[lineno, 0], :on_ignored_sp, ignored, token[3]])
-                    column = ignored.length
+                  # If the dedent is 0 and we're not supposed to dedent the next
+                  # line or this line doesn't start with whitespace, then we
+                  # should concatenate the rest of the string to match ripper.
+                  if dedent == 0 && (!dedent_next || !line.start_with?(/\s/))
+                    line = splits[index..].join
+                    index = splits.length
                   end
-                end
 
-                results << Token.new([[lineno, column], token[1], line, token[3]]) unless line.empty?
-                index += 1
+                  # If we are supposed to dedent this line or if this is not the
+                  # first line of the string and this line isn't entirely blank,
+                  # then we need to insert an on_ignored_sp token and remove the
+                  # dedent from the beginning of the line.
+                  if (line != "\n" && dedent > 0) && (dedent_next || index > 0)
+                    deleting = 0
+                    deleted_chars = []
+
+                    # Gather up all of the characters that we're going to
+                    # delete, stopping when you hit a character that would put
+                    # you over the dedent amount.
+                    line.each_char do |char|
+                      break if (deleting += char == "\t" ? TAB_WIDTH : 1) > dedent
+                      deleted_chars << char
+                    end
+
+                    # If we have something to delete, then delete it from the
+                    # string and insert an on_ignored_sp token.
+                    if deleted_chars.any?
+                      ignored = deleted_chars.join
+                      line.delete_prefix!(ignored)
+
+                      results << Token.new([[lineno, 0], :on_ignored_sp, ignored, token[3]])
+                      column = ignored.length
+                    end
+                  end
+
+                  results << Token.new([[lineno, column], token[1], line, token[3]]) unless line.empty?
+                  index += 1
+                end
+              else
+                results << token
               end
-
-              dedent_next = true
             else
-              dedent_next = false
               results << token
             end
+
+            dedent_next = token.event == :on_tstring_content && embexpr_balance == 0
           end
 
           results
@@ -437,14 +477,14 @@ module YARP
 
       # Here we will split between the two types of heredocs and return the
       # object that will store their tokens.
-      def self.build(opening, state)
+      def self.build(opening)
         case opening.value[2]
         when "~"
-          DedentingHeredoc.new(state)
+          DedentingHeredoc.new
         when "-"
-          DashHeredoc.new(state)
+          DashHeredoc.new(opening.value[3] != "'")
         else
-          PlainHeredoc.new(state)
+          PlainHeredoc.new
         end
       end
     end
@@ -488,6 +528,10 @@ module YARP
             EndContentToken.new([[lineno, column], event, value, lex_state])
           when :on_comment
             CommentToken.new([[lineno, column], event, value, lex_state])
+          when :on_heredoc_end
+            # Heredoc end tokens can be emitted in an odd order, so we don't
+            # want to bother comparing the state on them.
+            HeredocEndToken.new([[lineno, column], event, value, lex_state])
           when :on_ident
             if lex_state == Ripper::EXPR_END | Ripper::EXPR_LABEL
               # In the event that we're comparing identifiers, we're going to
@@ -549,7 +593,7 @@ module YARP
 
           if event == :on_heredoc_beg
             state = :heredoc_opened
-            heredocs << Heredoc.build(token, lex_state)
+            heredocs << Heredoc.build(token)
           end
         when :heredoc_opened
           heredocs.last << token
@@ -567,7 +611,7 @@ module YARP
             state = :default
           when :on_heredoc_beg
             state = :heredoc_opened
-            heredocs << Heredoc.build(token, lex_state)
+            heredocs << Heredoc.build(token)
           end
         end
       end
