@@ -1,6 +1,6 @@
-ProgramNode(0...944)(
+ProgramNode(0...960)(
   Scope(0...0)([]),
-  StatementsNode(0...944)(
+  StatementsNode(0...960)(
     [CallNode(0...14)(
        CallNode(0...3)(
          nil,
@@ -1269,8 +1269,8 @@ ProgramNode(0...944)(
      CallNode(724...736)(
        ConstantPathNode(724...728)(
          ConstantReadNode(724...725)(),
-         COLON_COLON(725...727)("::"),
-         ConstantReadNode(727...728)()
+         ConstantReadNode(727...728)(),
+         (725...727)
        ),
        COLON_COLON(728...730)("::"),
        CONSTANT(730...731)("C"),
@@ -1290,8 +1290,8 @@ ProgramNode(0...944)(
      CallNode(738...751)(
        ConstantPathNode(738...742)(
          ConstantReadNode(738...739)(),
-         COLON_COLON(739...741)("::"),
-         ConstantReadNode(741...742)()
+         ConstantReadNode(741...742)(),
+         (739...741)
        ),
        COLON_COLON(742...744)("::"),
        CONSTANT(744...745)("C"),
@@ -1311,8 +1311,8 @@ ProgramNode(0...944)(
      CallNode(753...770)(
        ConstantPathNode(753...757)(
          ConstantReadNode(753...754)(),
-         COLON_COLON(754...756)("::"),
-         ConstantReadNode(756...757)()
+         ConstantReadNode(756...757)(),
+         (754...756)
        ),
        COLON_COLON(757...759)("::"),
        CONSTANT(759...760)("C"),
@@ -1630,6 +1630,42 @@ ProgramNode(0...944)(
        nil,
        nil,
        "foo"
+     ),
+     CallNode(959...960)(
+       nil,
+       nil,
+       IDENTIFIER(959...960)("p"),
+       nil,
+       ArgumentsNode(961...987)(
+         [BeginNode(961...987)(
+            KEYWORD_BEGIN(961...966)("begin"),
+            StatementsNode(967...983)(
+              [CallNode(967...983)(
+                 IntegerNode(967...968)(),
+                 DOT(968...969)("."),
+                 IDENTIFIER(969...974)("times"),
+                 nil,
+                 nil,
+                 nil,
+                 BlockNode(975...983)(
+                   Scope(975...977)([]),
+                   nil,
+                   StatementsNode(978...979)([IntegerNode(978...979)()]),
+                   (975...977),
+                   (980...983)
+                 ),
+                 "times"
+               )]
+            ),
+            nil,
+            nil,
+            nil,
+            KEYWORD_END(984...987)("end")
+          )]
+       ),
+       nil,
+       nil,
+       "p"
      )]
   )
 )

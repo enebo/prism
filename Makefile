@@ -4,8 +4,8 @@ else
 SOEXT := so
 endif
 
-build/librubyparser.$(SOEXT): $(shell find src -name '*.c') $(shell find src -name '*.h') Makefile build src/ast.h
-	$(CC) -Wall -Werror -fPIC -g -fvisibility=hidden -shared -Isrc -o $@ $(shell find src -name '*.c')
+build/librubyparser.$(SOEXT): $(shell find src -name '*.c') $(shell find src -name '*.h') Makefile build include/yarp/ast.h
+	$(CC) -Wall -Werror -fPIC -g -fvisibility=hidden -shared -Iinclude -o $@ $(shell find src -name '*.c')
 
 # TODO: static compile librubyparser to allow it to statically link to JNI .so
 # TODO: this will need to compile on Windows.
@@ -17,10 +17,17 @@ java: build/libjavaparser.$(SOEXT)
 build:
 	mkdir -p build
 
-src/ast.h: bin/templates/src/ast.h.erb
+include/yarp/ast.h: bin/templates/include/yarp/ast.h.erb
 	rake $@
 
 clean:
-	rm -f build/librubyparser.$(SOEXT) ext/yarp/node.c lib/yarp/{node,serialize}.rb src/{ast.h,node.{c,h},prettyprint.c,serialize.c,token_type.c}
+	rm -f \
+		build/librubyparser.$(SOEXT) \
+		ext/yarp/node.c \
+		include/{ast.h,node.h} \
+		java/org/yarp/{AbstractNodeVisitor.java,Loader.java,Nodes.java} \
+		lib/yarp/{node,serialize}.rb \
+		src/{node.c,prettyprint.c,serialize.c,token_type.c} \
+		src/util/yp_strspn.c
 
 .PHONY: clean
