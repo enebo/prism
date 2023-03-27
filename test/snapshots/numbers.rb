@@ -1,5 +1,5 @@
 ProgramNode(0...97)(
-  Scope(0...0)([]),
+  ScopeNode(0...0)([]),
   StatementsNode(0...97)(
     [IntegerNode(0...1)(),
      IntegerNode(3...4)(),
@@ -25,7 +25,7 @@ ProgramNode(0...97)(
      CallNode(95...97)(
        IntegerNode(96...97)(),
        nil,
-       UMINUS(95...96)("-"),
+       UMINUS_NUM(95...96)("-"),
        nil,
        nil,
        nil,
