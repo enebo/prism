@@ -6,7 +6,7 @@ require "yaml"
 
 # This represents a parameter to a node that is itself a node. We pass them as
 # references and store them as references.
-class NodeParam < Struct.new(:name)
+class NodeParam < Struct.new(:name, :c_type)
   def param = "yp_node_t *#{name}"
   def rbs_class = "Node"
   def java_type = "Node"
@@ -14,7 +14,7 @@ end
 
 # This represents a parameter to a node that is itself a node and can be
 # optionally null. We pass them as references and store them as references.
-class OptionalNodeParam < Struct.new(:name, :fallback)
+class OptionalNodeParam < Struct.new(:name, :c_type, :fallback)
   def param = "yp_node_t *#{name}"
   def rbs_class = "Node?"
   def java_type = "Node"
@@ -81,11 +81,10 @@ class IntegerParam < Struct.new(:name)
 end
 
 # This class represents a node in the tree, configured by the config.yml file in
-# YAML format. It contains information about the name of the node, the various
-# child nodes it contains, and how to obtain the location of the node in the
-# source.
+# YAML format. It contains information about the name of the node and the
+# various child nodes it contains.
 class NodeType
-  attr_reader :name, :type, :human, :params, :location, :location_provided, :comment, :is_migrated
+  attr_reader :name, :type, :human, :params, :comment
 
   def initialize(config)
     @name = config.fetch("name")
@@ -98,11 +97,10 @@ class NodeType
       config.fetch("child_nodes", []).map do |param|
         name = param.fetch("name")
 
-        case param.fetch("type")
-        when "node"
-          NodeParam.new(name)
-        when "node?"
-          OptionalNodeParam.new(name)
+        case (type = param.fetch("type"))
+        when "node", "node?"
+          c_type = param["kind"].nil? ? "yp_node" : "yp_#{param["kind"].gsub(/(?<=.)[A-Z]/, "_\\0").downcase}"
+          (type == "node" ? NodeParam : OptionalNodeParam).new(name, c_type)
         when "node[]"
           NodeListParam.new(name)
         when "string"
@@ -124,54 +122,7 @@ class NodeType
         end
       end
 
-    @location =
-      config.fetch("location", "provided").then do |location|
-        if location == "provided"
-          @location_provided = true
-          "*location"
-        else
-          bounds = location.include?("->") ? location.split("->") : [location, location]
-          from, to = bounds.map { |names| names.split("|").map { |name| params.find { |param| param.name == name } } }
-          "{ .start = #{start_location_for(from)}, .end = #{end_location_for(to)} }"
-        end
-      end
-
     @comment = config.fetch("comment")
-    @is_migrated = config["is_migrated"] || false
-  end
-
-  def location_provided?
-    @location_provided
-  end
-
-  private
-
-  def start_location_for(params)
-    case param = params.first
-    in NodeParam then "#{param.name}->location.start"
-    in OptionalNodeParam then "(#{param.name} == NULL ? #{start_location_for(params.drop(1))} : #{param.name}->location.start)"
-    in TokenParam then "#{param.name}->start"
-    in OptionalTokenParam then "(#{param.name}->type == YP_TOKEN_NOT_PROVIDED ? #{start_location_for(params.drop(1))} : #{param.name}->start)"
-    in NodeListParam | TokenListParam then "NULL"
-    in LocationParam then "#{param.name}->start"
-    in OptionalLocationParam then "(#{param.name} == NULL ? #{start_location_for(params.drop(1))} : #{param.name}->start)"
-    else
-      raise "Unknown param type: #{param.inspect}"
-    end
-  end
-
-  def end_location_for(params)
-    case param = params.first
-    in NodeParam then "#{param.name}->location.end"
-    in OptionalNodeParam then "(#{param.name} == NULL ? #{end_location_for(params.drop(1))} : #{param.name}->location.end)"
-    in TokenParam then "#{param.name}->end"
-    in OptionalTokenParam then "(#{param.name}->type == YP_TOKEN_NOT_PROVIDED ? #{end_location_for(params.drop(1))} : #{param.name}->end)"
-    in NodeListParam | TokenListParam then "NULL"
-    in LocationParam then "#{param.name}->end"
-    in OptionalLocationParam then "(#{param.name} == NULL ? #{end_location_for(params.drop(1))} : #{param.name}->end)"
-    else
-      raise "Unknown param type: #{param.inspect}"
-    end
   end
 end
 

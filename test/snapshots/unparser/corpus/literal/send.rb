@@ -11,24 +11,12 @@ ProgramNode(0...991)(
        ConstantReadNode(7...8)(),
        StatementsNode(11...31)(
          [OperatorOrAssignmentNode(11...31)(
-            LocalVariableWriteNode(11...14)(
-              IDENTIFIER(11...14)("foo"),
-              nil,
-              nil
-            ),
+            LocalVariableWriteNode(11...14)((11...14), nil, nil),
             ParenthesesNode(19...31)(
               StatementsNode(21...30)(
                 [MultiWriteNode(21...30)(
-                   [LocalVariableWriteNode(21...22)(
-                      IDENTIFIER(21...22)("a"),
-                      nil,
-                      nil
-                    ),
-                    LocalVariableWriteNode(24...25)(
-                      IDENTIFIER(24...25)("_"),
-                      nil,
-                      nil
-                    )],
+                   [LocalVariableWriteNode(21...22)((21...22), nil, nil),
+                    LocalVariableWriteNode(24...25)((24...25), nil, nil)],
                    EQUAL(27...28)("="),
                    CallNode(29...30)(
                      nil,
@@ -58,12 +46,12 @@ ProgramNode(0...991)(
        ConstantReadNode(44...45)(),
        StatementsNode(48...69)(
          [LocalVariableWriteNode(48...57)(
-            IDENTIFIER(48...53)("local"),
-            EQUAL(54...55)("="),
-            IntegerNode(56...57)()
+            (48...53),
+            IntegerNode(56...57)(),
+            (54...55)
           ),
           CallNode(60...69)(
-            LocalVariableReadNode(60...65)(IDENTIFIER(60...65)("local")),
+            LocalVariableReadNode(60...65)(),
             DOT(65...66)("."),
             IDENTIFIER(66...69)("bar"),
             nil,
@@ -160,7 +148,7 @@ ProgramNode(0...991)(
            (133...134),
            (151...152)
          ),
-         [WhenNode(158...161)(
+         [WhenNode(153...161)(
             KEYWORD_WHEN(153...157)("when"),
             [CallNode(158...161)(
                nil,
@@ -198,7 +186,7 @@ ProgramNode(0...991)(
            nil,
            "foo"
          ),
-         [WhenNode(184...187)(
+         [WhenNode(179...187)(
             KEYWORD_WHEN(179...183)("when"),
             [CallNode(184...187)(
                nil,

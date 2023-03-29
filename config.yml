@@ -330,7 +330,6 @@ nodes:
 
           alias foo bar
           ^^^^^^^^^^^^^
-    is_migrated: true
   - name: AlternationPatternNode
     child_nodes:
       - name: left
@@ -454,12 +453,16 @@ nodes:
         type: token?
       - name: statements
         type: node?
+        kind: StatementsNode
       - name: rescue_clause
         type: node?
+        kind: RescueNode
       - name: else_clause
         type: node?
+        kind: ElseNode
       - name: ensure_clause
         type: node?
+        kind: EnsureNode
       - name: end_keyword
         type: token?
     comment: |
@@ -484,8 +487,10 @@ nodes:
     child_nodes:
       - name: scope
         type: node
+        kind: ScopeNode
       - name: parameters
         type: node?
+        kind: BlockParametersNode
       - name: statements
         type: node?
       - name: opening_loc
@@ -513,6 +518,7 @@ nodes:
     child_nodes:
       - name: parameters
         type: node?
+        kind: ParametersNode
       - name: locals
         type: token[]
     comment: |
@@ -524,6 +530,7 @@ nodes:
     child_nodes:
       - name: arguments
         type: node?
+        kind: ArgumentsNode
       - name: keyword_loc
         type: location
     comment: |
@@ -543,10 +550,12 @@ nodes:
         type: token?
       - name: arguments
         type: node?
+        kind: ArgumentsNode
       - name: closing
         type: token?
       - name: block
         type: node?
+        kind: BlockNode
       - name: name
         type: string
     comment: |
@@ -577,6 +586,7 @@ nodes:
         type: node[]
       - name: consequent
         type: node?
+        kind: ElseNode
       - name: case_keyword_loc
         type: location
       - name: end_keyword_loc
@@ -592,6 +602,7 @@ nodes:
     child_nodes:
       - name: scope
         type: node
+        kind: ScopeNode
       - name: class_keyword
         type: token
       - name: constant_path
@@ -671,10 +682,12 @@ nodes:
         type: node?
       - name: parameters
         type: node?
+        kind: ParametersNode
       - name: statements
         type: node?
       - name: scope
         type: node
+        kind: ScopeNode
       - name: def_keyword_loc
         type: location
       - name: operator_loc
@@ -714,6 +727,7 @@ nodes:
         type: token
       - name: statements
         type: node?
+        kind: StatementsNode
       - name: end_keyword
         type: token?
     comment: |
@@ -727,6 +741,7 @@ nodes:
         type: token
       - name: statements
         type: node?
+        kind: StatementsNode
       - name: end_keyword
         type: token
     comment: |
@@ -783,6 +798,7 @@ nodes:
         type: node
       - name: statements
         type: node?
+        kind: StatementsNode
       - name: for_keyword_loc
         type: location
       - name: in_keyword_loc
@@ -815,6 +831,7 @@ nodes:
     child_nodes:
       - name: block
         type: node?
+        kind: BlockNode
     comment: |
       Represents the use of the `super` keyword without parentheses or arguments.
 
@@ -900,6 +917,7 @@ nodes:
         type: node
       - name: statements
         type: node?
+        kind: StatementsNode
       - name: consequent
         type: node?
       - name: end_keyword
@@ -924,6 +942,7 @@ nodes:
         type: node
       - name: statements
         type: node?
+        kind: StatementsNode
       - name: in_loc
         type: location
       - name: then_loc
@@ -1042,12 +1061,14 @@ nodes:
     child_nodes:
       - name: scope
         type: node
+        kind: ScopeNode
       - name: opening
         type: token
       - name: lparen
         type: token?
       - name: parameters
         type: node?
+        kind: BlockParametersNode
       - name: rparen
         type: token?
       - name: statements
@@ -1058,9 +1079,6 @@ nodes:
           ->(value) { value * 2 }
           ^^^^^^^^^^^^^^^^^^^^^^^
   - name: LocalVariableReadNode
-    child_nodes:
-      - name: name
-        type: token
     comment: |
       Represents reading a local variable. Note that this requires that a local
       variable of the same name has already been written to in the same scope,
@@ -1070,12 +1088,12 @@ nodes:
           ^^^
   - name: LocalVariableWriteNode
     child_nodes:
-      - name: name
-        type: token
-      - name: operator
-        type: token?
+      - name: name_loc
+        type: location
       - name: value
         type: node?
+      - name: operator_loc
+        type: location?
     comment: |
       Represents writing to a local variable.
 
@@ -1115,6 +1133,7 @@ nodes:
     child_nodes:
       - name: scope
         type: node
+        kind: ScopeNode
       - name: module_keyword
         type: token
       - name: constant_path
@@ -1149,6 +1168,7 @@ nodes:
     child_nodes:
       - name: arguments
         type: node?
+        kind: ArgumentsNode
       - name: keyword_loc
         type: location
     comment: |
@@ -1248,12 +1268,14 @@ nodes:
         type: node[]
       - name: rest
         type: node?
+        kind: RestParameterNode
       - name: keywords
         type: node[]
       - name: keyword_rest
         type: node?
       - name: block
         type: node?
+        kind: BlockParameterNode
     comment: |
       Represents the list of parameters on a method, block, or lambda definition.
 
@@ -1305,6 +1327,7 @@ nodes:
     child_nodes:
       - name: statements
         type: node
+        kind: StatementsNode
       - name: keyword_loc
         type: location
       - name: opening_loc
@@ -1320,6 +1343,7 @@ nodes:
     child_nodes:
       - name: statements
         type: node
+        kind: StatementsNode
       - name: keyword_loc
         type: location
       - name: opening_loc
@@ -1335,8 +1359,10 @@ nodes:
     child_nodes:
       - name: scope
         type: node
+        kind: ScopeNode
       - name: statements
         type: node
+        kind: StatementsNode
     comment: The top level node of any parse tree.
   - name: RangeNode
     child_nodes:
@@ -1396,9 +1422,6 @@ nodes:
                   ^^^^^^^^^^
           end
   - name: RequiredParameterNode
-    child_nodes:
-      - name: name
-        type: token
     comment: |
       Represents a required parameter to a method, block, or lambda definition.
 
@@ -1430,8 +1453,10 @@ nodes:
         type: node?
       - name: statements
         type: node?
+        kind: StatementsNode
       - name: consequent
         type: node?
+        kind: RescueNode
     comment: |
       Represents a rescue statement.
 
@@ -1464,6 +1489,7 @@ nodes:
         type: token
       - name: arguments
         type: node?
+        kind: ArgumentsNode
     comment: |
       Represents the use of the `return` keyword.
 
@@ -1486,6 +1512,7 @@ nodes:
     child_nodes:
       - name: scope
         type: node
+        kind: ScopeNode
       - name: class_keyword
         type: token
       - name: operator
@@ -1556,6 +1583,7 @@ nodes:
         type: token
       - name: statements
         type: node?
+        kind: StatementsNode
       - name: closing
         type: token
     comment: |
@@ -1593,10 +1621,12 @@ nodes:
         type: token?
       - name: arguments
         type: node?
+        kind: ArgumentsNode
       - name: rparen
         type: token?
       - name: block
         type: node?
+        kind: BlockNode
     comment: |
       Represents the use of the `super` keyword with parentheses or arguments.
 
@@ -1648,8 +1678,10 @@ nodes:
         type: node
       - name: statements
         type: node?
+        kind: StatementsNode
       - name: consequent
         type: node?
+        kind: ElseNode
       - name: end_keyword
         type: token?
     comment: |
@@ -1668,6 +1700,7 @@ nodes:
         type: node
       - name: statements
         type: node?
+        kind: StatementsNode
     comment: |
       Represents the use of the `until` keyword, either in the block form or the modifier form.
 
@@ -1684,6 +1717,7 @@ nodes:
         type: node[]
       - name: statements
         type: node?
+        kind: StatementsNode
     comment: |
       case true
       when true
@@ -1697,6 +1731,7 @@ nodes:
         type: node
       - name: statements
         type: node?
+        kind: StatementsNode
     comment: |
       Represents the use of the `while` keyword, either in the block form or the modifier form.
 
@@ -1728,6 +1763,7 @@ nodes:
         type: token?
       - name: arguments
         type: node?
+        kind: ArgumentsNode
       - name: rparen
         type: token?
     comment: |
