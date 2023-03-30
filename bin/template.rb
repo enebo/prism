@@ -4,12 +4,14 @@ require "erb"
 require "fileutils"
 require "yaml"
 
+$jruby = RUBY_ENGINE == 'jruby'
+
 # This represents a parameter to a node that is itself a node. We pass them as
 # references and store them as references.
 class NodeParam < Struct.new(:name, :c_type)
   def param = "yp_node_t *#{name}"
   def rbs_class = "Node"
-  def java_type = "Node"
+  def java_type = $jruby && name == "scope" ? "StaticScope" : "Node"    
 end
 
 # This represents a parameter to a node that is itself a node and can be
@@ -20,7 +22,7 @@ class OptionalNodeParam < Struct.new(:name, :c_type, :fallback)
   def java_type = "Node"
 end
 
-SingleNodeParam = -> (node) { NodeParam === node or OptionalNodeParam === node }
+SingleNodeParam = -> (node) { (NodeParam === node or OptionalNodeParam === node) and node.java_type != "StaticScope" }
 
 # This represents a parameter to a node that is a list of nodes. We pass them as
 # references and store them as references.

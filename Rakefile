@@ -20,7 +20,7 @@ if RUBY_ENGINE == 'jruby'
   target = 'java'
 
   Rake::JavaExtensionTask.new(:compile) do |ext|
-    ext.ext_dir = 'java'
+    ext.ext_dir = 'jruby'
     ext.lib_dir = "lib/yarp"
     ext.source_version = '1.8'
     ext.target_version = '1.8'
@@ -61,6 +61,9 @@ TEMPLATES = [
   "java/org/yarp/Loader.java",
   "java/org/yarp/Nodes.java",
   "java/org/yarp/AbstractNodeVisitor.java",
+  "jruby/org/yarp/Loader.java",
+  "jruby/org/yarp/Nodes.java",
+  "jruby/org/yarp/AbstractNodeVisitor.java",
   "lib/yarp/node.rb",
   "lib/yarp/serialize.rb",
   "src/node.c",
