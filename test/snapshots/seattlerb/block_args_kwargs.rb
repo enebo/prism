@@ -14,6 +14,7 @@ ProgramNode(0...23)(
            ParametersNode(5...13)(
              [],
              [],
+             [],
              nil,
              [],
              KeywordRestParameterNode(5...13)(
@@ -24,7 +25,7 @@ ProgramNode(0...23)(
            ),
            []
          ),
-         StatementsNode(15...21)([LocalVariableReadNode(15...21)()]),
+         StatementsNode(15...21)([LocalVariableReadNode(15...21)(0)]),
          (2...3),
          (22...23)
        ),

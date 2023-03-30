@@ -120,6 +120,7 @@ ProgramNode(0...402)(
              [RequiredParameterNode(54...55)(),
               RequiredParameterNode(57...61)()],
              [],
+             [],
              nil,
              [],
              nil,
@@ -129,9 +130,9 @@ ProgramNode(0...402)(
          ),
          StatementsNode(63...72)(
            [OperatorAssignmentNode(63...72)(
-              LocalVariableWriteNode(63...67)((63...67), nil, nil),
+              LocalVariableWriteNode(63...67)((63...67), nil, nil, 0),
               PLUS_EQUAL(68...70)("+="),
-              LocalVariableReadNode(71...72)()
+              LocalVariableReadNode(71...72)(0)
             )]
          ),
          (51...52),
@@ -298,6 +299,7 @@ ProgramNode(0...402)(
                   "[]"
                 )
               )],
+             [],
              nil,
              [],
              nil,
@@ -459,6 +461,7 @@ ProgramNode(0...402)(
                 EQUAL(265...266)("="),
                 IntegerNode(267...268)()
               )],
+             [],
              nil,
              [KeywordParameterNode(270...272)(LABEL(270...272)("z:"), nil)],
              nil,
@@ -466,7 +469,7 @@ ProgramNode(0...402)(
            ),
            []
          ),
-         StatementsNode(274...275)([LocalVariableReadNode(274...275)()]),
+         StatementsNode(274...275)([LocalVariableReadNode(274...275)(0)]),
          (257...258),
          (276...277)
        ),
@@ -485,6 +488,7 @@ ProgramNode(0...402)(
            ParametersNode(286...287)(
              [RequiredParameterNode(286...287)()],
              [],
+             [],
              nil,
              [],
              nil,
@@ -501,7 +505,8 @@ ProgramNode(0...402)(
      LocalVariableWriteNode(292...300)(
        (292...296),
        IntegerNode(299...300)(),
-       (297...298)
+       (297...298),
+       0
      ),
      CallNode(301...316)(
        nil,
@@ -515,6 +520,7 @@ ProgramNode(0...402)(
          BlockParametersNode(310...311)(
            ParametersNode(310...311)(
              [RequiredParameterNode(310...311)()],
+             [],
              [],
              nil,
              [],
@@ -541,6 +547,7 @@ ProgramNode(0...402)(
          BlockParametersNode(326...327)(
            ParametersNode(326...327)(
              [RequiredParameterNode(326...327)()],
+             [],
              [],
              nil,
              [],
@@ -608,6 +615,7 @@ ProgramNode(0...402)(
                 ParametersNode(365...377)(
                   [],
                   [],
+                  [],
                   nil,
                   [KeywordParameterNode(365...369)(
                      LABEL(365...367)("a:"),
@@ -645,6 +653,7 @@ ProgramNode(0...402)(
          BlockParametersNode(393...397)(
            ParametersNode(393...397)(
              [RequiredParameterNode(393...396)()],
+             [],
              [],
              RestParameterNode(396...397)(COMMA(396...397)(","), nil),
              [],

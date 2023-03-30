@@ -22,7 +22,7 @@ endif
 all: build/librubyparser.$(SOEXT)
 
 build/librubyparser.$(SOEXT): $(shell find src -name '*.c') $(shell find src -name '*.h') Makefile build include/yarp/ast.h
-	$(CC) $(CFLAGS) -std=c99 -Wall -Werror -Wpedantic -fPIC -g -fvisibility=hidden -shared -Iinclude -o $@ $(shell find src -name '*.c')
+	$(CC) $(CFLAGS) $(DEBUG_FLAGS) -std=c99 -Wall -Werror -Wextra -Wpedantic -Wsign-conversion -Wno-missing-field-initializers -Wno-uninitialized -fPIC -g -fvisibility=hidden -shared -Iinclude -o $@ $(shell find src -name '*.c')
 
 # TODO: this will need to compile on Windows.
 build/libjavaparser.$(SOEXT): $(shell find jni -name '*.c') build/librubyparser.$(SOEXT)
@@ -51,3 +51,6 @@ clean:
 		src/util/yp_strspn.c
 
 .PHONY: clean
+
+all-no-debug: DEBUG_FLAGS := -DNDEBUG=1
+all-no-debug: all

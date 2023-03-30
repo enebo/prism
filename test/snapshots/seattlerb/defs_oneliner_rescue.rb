@@ -7,6 +7,7 @@ ProgramNode(0...145)(
        ParametersNode(14...17)(
          [RequiredParameterNode(14...17)()],
          [],
+         [],
          nil,
          [],
          nil,
@@ -20,7 +21,7 @@ ProgramNode(0...145)(
               nil,
               IDENTIFIER(21...27)("system"),
               PARENTHESIS_LEFT(27...28)("("),
-              ArgumentsNode(28...31)([LocalVariableReadNode(28...31)()]),
+              ArgumentsNode(28...31)([LocalVariableReadNode(28...31)(0)]),
               PARENTHESIS_RIGHT(31...32)(")"),
               nil,
               "system"
@@ -52,6 +53,7 @@ ProgramNode(0...145)(
        ParametersNode(66...69)(
          [RequiredParameterNode(66...69)()],
          [],
+         [],
          nil,
          [],
          nil,
@@ -64,7 +66,7 @@ ProgramNode(0...145)(
               nil,
               IDENTIFIER(73...79)("system"),
               PARENTHESIS_LEFT(79...80)("("),
-              ArgumentsNode(80...83)([LocalVariableReadNode(80...83)()]),
+              ArgumentsNode(80...83)([LocalVariableReadNode(80...83)(0)]),
               PARENTHESIS_RIGHT(83...84)(")"),
               nil,
               "system"
@@ -87,6 +89,7 @@ ProgramNode(0...145)(
        ParametersNode(116...119)(
          [RequiredParameterNode(116...119)()],
          [],
+         [],
          nil,
          [],
          nil,
@@ -99,7 +102,7 @@ ProgramNode(0...145)(
               nil,
               IDENTIFIER(123...129)("system"),
               PARENTHESIS_LEFT(129...130)("("),
-              ArgumentsNode(130...133)([LocalVariableReadNode(130...133)()]),
+              ArgumentsNode(130...133)([LocalVariableReadNode(130...133)(0)]),
               PARENTHESIS_RIGHT(133...134)(")"),
               nil,
               "system"

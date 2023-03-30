@@ -24,6 +24,7 @@ ProgramNode(0...737)(
            ParametersNode(15...16)(
              [RequiredParameterNode(15...16)()],
              [],
+             [],
              nil,
              [],
              nil,
@@ -49,6 +50,7 @@ ProgramNode(0...737)(
          BlockParametersNode(27...29)(
            ParametersNode(27...29)(
              [RequiredParameterNode(27...28)()],
+             [],
              [],
              RestParameterNode(28...29)(COMMA(28...29)(","), nil),
              [],
@@ -78,6 +80,7 @@ ProgramNode(0...737)(
            ParametersNode(40...42)(
              [RequiredParameterNode(40...41)()],
              [],
+             [],
              RestParameterNode(41...42)(COMMA(41...42)(","), nil),
              [],
              nil,
@@ -106,6 +109,7 @@ ProgramNode(0...737)(
            ParametersNode(56...60)(
              [RequiredParameterNode(56...57)(),
               RequiredParameterNode(59...60)()],
+             [],
              [],
              nil,
              [],
@@ -151,6 +155,7 @@ ProgramNode(0...737)(
            ParametersNode(88...93)(
              [RequiredParameterNode(88...89)()],
              [],
+             [],
              RestParameterNode(91...93)(
                USTAR(91...92)("*"),
                IDENTIFIER(92...93)("b")
@@ -181,6 +186,7 @@ ProgramNode(0...737)(
          BlockParametersNode(110...114)(
            ParametersNode(110...114)(
              [RequiredParameterNode(110...111)()],
+             [],
              [],
              RestParameterNode(113...114)(USTAR(113...114)("*"), nil),
              [],
@@ -254,6 +260,7 @@ ProgramNode(0...737)(
               ),
               RequiredParameterNode(157...158)()],
              [],
+             [],
              nil,
              [],
              nil,
@@ -302,6 +309,7 @@ ProgramNode(0...737)(
            ParametersNode(177...179)(
              [],
              [],
+             [],
              RestParameterNode(177...179)(
                USTAR(177...178)("*"),
                IDENTIFIER(178...179)("a")
@@ -341,6 +349,7 @@ ProgramNode(0...737)(
          BlockParametersNode(197...201)(
            ParametersNode(197...198)(
              [RequiredParameterNode(197...198)()],
+             [],
              [],
              nil,
              [],
@@ -407,6 +416,7 @@ ProgramNode(0...737)(
            ParametersNode(237...238)(
              [],
              [],
+             [],
              RestParameterNode(237...238)(USTAR(237...238)("*"), nil),
              [],
              nil,
@@ -456,6 +466,7 @@ ProgramNode(0...737)(
                 PARENTHESIS_LEFT(257...258)("("),
                 PARENTHESIS_RIGHT(259...260)(")")
               )],
+             [],
              [],
              nil,
              [],
@@ -510,6 +521,7 @@ ProgramNode(0...737)(
                 PARENTHESIS_LEFT(279...280)("("),
                 PARENTHESIS_RIGHT(283...284)(")")
               )],
+             [],
              [],
              nil,
              [],
@@ -566,6 +578,7 @@ ProgramNode(0...737)(
                 PARENTHESIS_RIGHT(310...311)(")")
               )],
              [],
+             [],
              nil,
              [],
              nil,
@@ -618,6 +631,7 @@ ProgramNode(0...737)(
                 PARENTHESIS_LEFT(330...331)("("),
                 PARENTHESIS_RIGHT(335...336)(")")
               )],
+             [],
              [],
              nil,
              [],
@@ -694,7 +708,7 @@ ProgramNode(0...737)(
              KEYWORD_RESCUE(365...371)("rescue"),
              [ConstantReadNode(372...381)()],
              EQUAL_GREATER(382...384)("=>"),
-             LocalVariableWriteNode(385...386)((385...386), nil, nil),
+             LocalVariableWriteNode(385...386)((385...386), nil, nil, 0),
              nil,
              nil
            ),
@@ -735,8 +749,8 @@ ProgramNode(0...737)(
              KEYWORD_RESCUE(402...408)("rescue"),
              [ConstantReadNode(409...418)()],
              EQUAL_GREATER(419...421)("=>"),
-             LocalVariableWriteNode(422...425)((422...425), nil, nil),
-             StatementsNode(428...431)([LocalVariableReadNode(428...431)()]),
+             LocalVariableWriteNode(422...425)((422...425), nil, nil, 0),
+             StatementsNode(428...431)([LocalVariableReadNode(428...431)(0)]),
              nil
            ),
            nil,
@@ -854,7 +868,7 @@ ProgramNode(0...737)(
                 )
               )],
              EQUAL_GREATER(514...516)("=>"),
-             LocalVariableWriteNode(517...526)((517...526), nil, nil),
+             LocalVariableWriteNode(517...526)((517...526), nil, nil, 0),
              StatementsNode(529...532)(
                [CallNode(529...532)(
                   nil,
@@ -1079,7 +1093,7 @@ ProgramNode(0...737)(
                 )
               )],
              EQUAL_GREATER(658...660)("=>"),
-             LocalVariableWriteNode(661...670)((661...670), nil, nil),
+             LocalVariableWriteNode(661...670)((661...670), nil, nil, 0),
              StatementsNode(673...676)(
                [CallNode(673...676)(
                   nil,

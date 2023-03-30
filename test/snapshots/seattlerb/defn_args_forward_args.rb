@@ -9,6 +9,7 @@ ProgramNode(0...41)(
           RequiredParameterNode(9...10)(),
           RequiredParameterNode(12...13)()],
          [],
+         [],
          nil,
          [],
          ForwardingParameterNode(15...18)(),
@@ -27,7 +28,7 @@ ProgramNode(0...41)(
                  nil,
                  "get"
                ),
-               LocalVariableReadNode(29...30)(),
+               LocalVariableReadNode(29...30)(0),
                ForwardingArgumentsNode(32...35)()]
             ),
             PARENTHESIS_RIGHT(35...36)(")"),

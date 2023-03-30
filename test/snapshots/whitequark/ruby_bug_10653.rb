@@ -108,6 +108,7 @@ ProgramNode(6...93)(
                 ParametersNode(79...80)(
                   [RequiredParameterNode(79...80)()],
                   [],
+                  [],
                   nil,
                   [],
                   nil,
@@ -121,7 +122,7 @@ ProgramNode(6...93)(
                    nil,
                    IDENTIFIER(82...83)("p"),
                    nil,
-                   ArgumentsNode(84...85)([LocalVariableReadNode(84...85)()]),
+                   ArgumentsNode(84...85)([LocalVariableReadNode(84...85)(0)]),
                    nil,
                    nil,
                    "p"

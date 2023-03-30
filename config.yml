@@ -410,19 +410,6 @@ nodes:
 
           foo in Bar[1, 2, 3]
           ^^^^^^^^^^^^^^^^^^^
-  - name: AsPatternNode
-    child_nodes:
-      - name: value
-        type: node
-      - name: target
-        type: node
-      - name: operator_loc
-        type: location
-    comment: |
-      Represents assigning to a local variable in pattern matching.
-
-          foo => [bar => baz]
-                 ^^^^^^^^^^^^
   - name: AssocNode
     child_nodes:
       - name: key
@@ -578,6 +565,19 @@ nodes:
 
           foo&.bar
           ^^^^^^^^
+  - name: CapturePatternNode
+    child_nodes:
+      - name: value
+        type: node
+      - name: target
+        type: node
+      - name: operator_loc
+        type: location
+    comment: |
+      Represents assigning to a local variable in pattern matching.
+
+          foo => [bar => baz]
+                 ^^^^^^^^^^^^
   - name: CaseNode
     child_nodes:
       - name: predicate
@@ -1079,6 +1079,9 @@ nodes:
           ->(value) { value * 2 }
           ^^^^^^^^^^^^^^^^^^^^^^^
   - name: LocalVariableReadNode
+    child_nodes:
+      - name: depth
+        type: integer
     comment: |
       Represents reading a local variable. Note that this requires that a local
       variable of the same name has already been written to in the same scope,
@@ -1094,6 +1097,8 @@ nodes:
         type: node?
       - name: operator_loc
         type: location?
+      - name: depth
+        type: integer
     comment: |
       Represents writing to a local variable.
 
@@ -1265,6 +1270,8 @@ nodes:
       - name: requireds
         type: node[]
       - name: optionals
+        type: node[]
+      - name: posts
         type: node[]
       - name: rest
         type: node?

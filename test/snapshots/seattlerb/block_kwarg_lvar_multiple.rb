@@ -14,6 +14,7 @@ ProgramNode(0...33)(
            ParametersNode(6...26)(
              [],
              [],
+             [],
              nil,
              [KeywordParameterNode(6...14)(
                 LABEL(6...9)("kw:"),
@@ -38,7 +39,7 @@ ProgramNode(0...33)(
            ),
            []
          ),
-         StatementsNode(29...31)([LocalVariableReadNode(29...31)()]),
+         StatementsNode(29...31)([LocalVariableReadNode(29...31)(0)]),
          (3...4),
          (32...33)
        ),

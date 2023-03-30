@@ -81,7 +81,7 @@ ProgramNode(0...242)(
        StatementsNode(113...129)(
          [IfNode(113...129)(
             KEYWORD_IF_MODIFIER(123...125)("if"),
-            LocalVariableReadNode(126...129)(),
+            LocalVariableReadNode(126...129)(0),
             StatementsNode(113...122)(
               [LocalVariableWriteNode(113...122)(
                  (113...116),
@@ -95,7 +95,8 @@ ProgramNode(0...242)(
                    nil,
                    "bar"
                  ),
-                 (117...118)
+                 (117...118),
+                 0
                )]
             ),
             nil,
@@ -111,7 +112,7 @@ ProgramNode(0...242)(
        StatementsNode(146...166)(
          [UnlessNode(146...166)(
             KEYWORD_UNLESS_MODIFIER(156...162)("unless"),
-            LocalVariableReadNode(163...166)(),
+            LocalVariableReadNode(163...166)(0),
             StatementsNode(146...155)(
               [LocalVariableWriteNode(146...155)(
                  (146...149),
@@ -125,7 +126,8 @@ ProgramNode(0...242)(
                    nil,
                    "bar"
                  ),
-                 (150...151)
+                 (150...151),
+                 0
                )]
             ),
             nil,
@@ -159,7 +161,8 @@ ProgramNode(0...242)(
               nil,
               "bar"
             ),
-            (188...189)
+            (188...189),
+            0
           )]
        ),
        nil,
@@ -180,6 +183,7 @@ ProgramNode(0...242)(
              ParametersNode(208...212)(
                [RequiredParameterNode(208...212)()],
                [],
+               [],
                nil,
                [],
                nil,
@@ -187,7 +191,7 @@ ProgramNode(0...242)(
              ),
              []
            ),
-           StatementsNode(216...220)([LocalVariableReadNode(216...220)()]),
+           StatementsNode(216...220)([LocalVariableReadNode(216...220)(0)]),
            (205...206),
            (221...222)
          ),
@@ -202,9 +206,10 @@ ProgramNode(0...242)(
               nil,
               "foo"
             ),
-            (230...231)
+            (230...231),
+            0
           ),
-          LocalVariableReadNode(239...242)()]
+          LocalVariableReadNode(239...242)(0)]
        ),
        nil,
        KEYWORD_END(243...246)("end")

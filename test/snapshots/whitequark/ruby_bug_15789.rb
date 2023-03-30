@@ -37,6 +37,7 @@ ProgramNode(0...23)(
                      )
                    )
                  )],
+                [],
                 nil,
                 [],
                 nil,
@@ -45,7 +46,7 @@ ProgramNode(0...23)(
               []
             ),
             PARENTHESIS_RIGHT(15...16)(")"),
-            StatementsNode(18...19)([LocalVariableReadNode(18...19)()])
+            StatementsNode(18...19)([LocalVariableReadNode(18...19)(0)])
           )]
        ),
        nil,
@@ -64,6 +65,7 @@ ProgramNode(0...23)(
             PARENTHESIS_LEFT(26...27)("("),
             BlockParametersNode(27...35)(
               ParametersNode(27...35)(
+                [],
                 [],
                 [],
                 nil,
@@ -95,7 +97,7 @@ ProgramNode(0...23)(
               []
             ),
             PARENTHESIS_RIGHT(36...37)(")"),
-            StatementsNode(39...40)([LocalVariableReadNode(39...40)()])
+            StatementsNode(39...40)([LocalVariableReadNode(39...40)(0)])
           )]
        ),
        nil,

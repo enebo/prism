@@ -7,6 +7,7 @@ ProgramNode(0...29)(
        ParametersNode(6...12)(
          [RequiredParameterNode(6...7)()],
          [],
+         [],
          nil,
          [],
          ForwardingParameterNode(9...12)(),
@@ -19,7 +20,7 @@ ProgramNode(0...29)(
             IDENTIFIER(15...16)("b"),
             PARENTHESIS_LEFT(16...17)("("),
             ArgumentsNode(17...23)(
-              [LocalVariableReadNode(17...18)(),
+              [LocalVariableReadNode(17...18)(0),
                ForwardingArgumentsNode(20...23)()]
             ),
             PARENTHESIS_RIGHT(23...24)(")"),

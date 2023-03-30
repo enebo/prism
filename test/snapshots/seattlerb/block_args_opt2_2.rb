@@ -27,6 +27,7 @@ ProgramNode(0...35)(
                 EQUAL(18...19)("="),
                 IntegerNode(20...22)()
               )],
+             [],
              nil,
              [],
              nil,
@@ -36,9 +37,9 @@ ProgramNode(0...35)(
          ),
          StatementsNode(24...33)(
            [ArrayNode(24...33)(
-              [LocalVariableReadNode(25...26)(),
-               LocalVariableReadNode(28...29)(),
-               LocalVariableReadNode(31...32)()],
+              [LocalVariableReadNode(25...26)(0),
+               LocalVariableReadNode(28...29)(0),
+               LocalVariableReadNode(31...32)(0)],
               BRACKET_LEFT_ARRAY(24...25)("["),
               BRACKET_RIGHT(32...33)("]")
             )]

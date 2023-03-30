@@ -839,6 +839,7 @@ ProgramNode(0...960)(
              [RequiredParameterNode(405...406)(),
               RequiredParameterNode(408...409)()],
              [],
+             [],
              nil,
              [],
              nil,
@@ -852,7 +853,7 @@ ProgramNode(0...960)(
               nil,
               IDENTIFIER(411...415)("puts"),
               nil,
-              ArgumentsNode(416...417)([LocalVariableReadNode(416...417)()]),
+              ArgumentsNode(416...417)([LocalVariableReadNode(416...417)(0)]),
               nil,
               nil,
               "puts"

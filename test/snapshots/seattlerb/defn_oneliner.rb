@@ -7,6 +7,7 @@ ProgramNode(0...27)(
        ParametersNode(9...12)(
          [RequiredParameterNode(9...12)()],
          [],
+         [],
          nil,
          [],
          nil,
@@ -18,7 +19,7 @@ ProgramNode(0...27)(
             nil,
             IDENTIFIER(16...22)("system"),
             PARENTHESIS_LEFT(22...23)("("),
-            ArgumentsNode(23...26)([LocalVariableReadNode(23...26)()]),
+            ArgumentsNode(23...26)([LocalVariableReadNode(23...26)(0)]),
             PARENTHESIS_RIGHT(26...27)(")"),
             nil,
             "system"

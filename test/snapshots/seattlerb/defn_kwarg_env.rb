@@ -7,6 +7,7 @@ ProgramNode(0...45)(
        ParametersNode(9...18)(
          [],
          [],
+         [],
          nil,
          [],
          KeywordRestParameterNode(9...18)(
@@ -25,7 +26,7 @@ ProgramNode(0...45)(
               [HashNode(31...40)(
                  nil,
                  [AssocSplatNode(31...40)(
-                    LocalVariableReadNode(33...40)(),
+                    LocalVariableReadNode(33...40)(0),
                     (31...33)
                   )],
                  nil

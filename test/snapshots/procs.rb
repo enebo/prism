@@ -1,6 +1,6 @@
-ProgramNode(0...241)(
+ProgramNode(0...262)(
   ScopeNode(0...0)([]),
-  StatementsNode(0...241)(
+  StatementsNode(0...262)(
     [LambdaNode(0...19)(
        ScopeNode(0...2)(
          [IDENTIFIER(4...5)("a"),
@@ -14,6 +14,7 @@ ProgramNode(0...241)(
          ParametersNode(4...5)(
            [RequiredParameterNode(4...5)()],
            [],
+           [],
            nil,
            [],
            nil,
@@ -24,7 +25,7 @@ ProgramNode(0...241)(
           IDENTIFIER(13...14)("d")]
        ),
        PARENTHESIS_RIGHT(14...15)(")"),
-       StatementsNode(18...19)([LocalVariableReadNode(18...19)()])
+       StatementsNode(18...19)([LocalVariableReadNode(18...19)(0)])
      ),
      LambdaNode(23...39)(
        ScopeNode(23...25)([]),
@@ -131,6 +132,7 @@ ProgramNode(0...241)(
               EQUAL(108...109)("="),
               IntegerNode(110...111)()
             )],
+           [],
            nil,
            [KeywordParameterNode(113...115)(LABEL(113...115)("c:"), nil),
             KeywordParameterNode(117...119)(LABEL(117...119)("d:"), nil)],
@@ -143,7 +145,7 @@ ProgramNode(0...241)(
          []
        ),
        nil,
-       StatementsNode(126...127)([LocalVariableReadNode(126...127)()])
+       StatementsNode(126...127)([LocalVariableReadNode(126...127)(0)])
      ),
      LambdaNode(131...169)(
        ScopeNode(131...133)(
@@ -165,6 +167,7 @@ ProgramNode(0...241)(
               EQUAL(140...141)("="),
               IntegerNode(142...143)()
             )],
+           [],
            RestParameterNode(145...147)(
              USTAR(145...146)("*"),
              IDENTIFIER(146...147)("c")
@@ -183,7 +186,7 @@ ProgramNode(0...241)(
          []
        ),
        PARENTHESIS_RIGHT(164...165)(")"),
-       StatementsNode(168...169)([LocalVariableReadNode(168...169)()])
+       StatementsNode(168...169)([LocalVariableReadNode(168...169)(0)])
      ),
      LambdaNode(173...214)(
        ScopeNode(173...175)(
@@ -205,6 +208,7 @@ ProgramNode(0...241)(
               EQUAL(182...183)("="),
               IntegerNode(184...185)()
             )],
+           [],
            RestParameterNode(187...189)(
              USTAR(187...188)("*"),
              IDENTIFIER(188...189)("c")
@@ -223,7 +227,7 @@ ProgramNode(0...241)(
          []
        ),
        PARENTHESIS_RIGHT(206...207)(")"),
-       StatementsNode(213...214)([LocalVariableReadNode(213...214)()])
+       StatementsNode(213...214)([LocalVariableReadNode(213...214)(0)])
      ),
      LambdaNode(220...241)(
        ScopeNode(220...222)([IDENTIFIER(224...225)("a")]),
@@ -232,6 +236,7 @@ ProgramNode(0...241)(
        BlockParametersNode(224...225)(
          ParametersNode(224...225)(
            [RequiredParameterNode(224...225)()],
+           [],
            [],
            nil,
            [],
@@ -250,6 +255,7 @@ ProgramNode(0...241)(
               ParametersNode(232...233)(
                 [RequiredParameterNode(232...233)()],
                 [],
+                [],
                 nil,
                 [],
                 nil,
@@ -260,12 +266,12 @@ ProgramNode(0...241)(
             nil,
             StatementsNode(236...241)(
               [CallNode(236...241)(
-                 LocalVariableReadNode(236...237)(),
+                 LocalVariableReadNode(236...237)(1),
                  nil,
                  STAR(238...239)("*"),
                  nil,
                  ArgumentsNode(240...241)(
-                   [LocalVariableReadNode(240...241)()]
+                   [LocalVariableReadNode(240...241)(0)]
                  ),
                  nil,
                  nil,
@@ -274,6 +280,37 @@ ProgramNode(0...241)(
             )
           )]
        )
+     ),
+     LambdaNode(247...262)(
+       ScopeNode(247...249)(
+         [IDENTIFIER(252...253)("a"),
+          IDENTIFIER(255...256)("b"),
+          IDENTIFIER(260...261)("c")]
+       ),
+       MINUS_GREATER(247...249)("->"),
+       PARENTHESIS_LEFT(250...251)("("),
+       BlockParametersNode(251...261)(
+         ParametersNode(251...261)(
+           [RequiredDestructuredParameterNode(251...257)(
+              [RequiredParameterNode(252...253)(),
+               RequiredParameterNode(255...256)()],
+              PARENTHESIS_LEFT(251...252)("("),
+              PARENTHESIS_RIGHT(256...257)(")")
+            )],
+           [],
+           [],
+           RestParameterNode(259...261)(
+             USTAR(259...260)("*"),
+             IDENTIFIER(260...261)("c")
+           ),
+           [],
+           nil,
+           nil
+         ),
+         []
+       ),
+       PARENTHESIS_RIGHT(261...262)(")"),
+       nil
      )]
   )
 )

@@ -20,6 +20,7 @@ ProgramNode(0...78)(
        ParametersNode(24...25)(
          [RequiredParameterNode(24...25)()],
          [],
+         [],
          nil,
          [],
          nil,
@@ -27,7 +28,7 @@ ProgramNode(0...78)(
        ),
        StatementsNode(29...34)(
          [CallNode(29...34)(
-            LocalVariableReadNode(29...30)(),
+            LocalVariableReadNode(29...30)(0),
             nil,
             PLUS(31...32)("+"),
             nil,
@@ -82,6 +83,7 @@ ProgramNode(0...78)(
        ParametersNode(68...69)(
          [RequiredParameterNode(68...69)()],
          [],
+         [],
          nil,
          [],
          nil,
@@ -89,7 +91,7 @@ ProgramNode(0...78)(
        ),
        StatementsNode(73...78)(
          [CallNode(73...78)(
-            LocalVariableReadNode(73...74)(),
+            LocalVariableReadNode(73...74)(0),
             nil,
             PLUS(75...76)("+"),
             nil,

@@ -69,6 +69,7 @@ ProgramNode(0...278)(
        ParametersNode(58...59)(
          [RequiredParameterNode(58...59)()],
          [],
+         [],
          nil,
          [],
          nil,
@@ -80,7 +81,7 @@ ProgramNode(0...278)(
             nil,
             IDENTIFIER(63...67)("puts"),
             nil,
-            ArgumentsNode(68...69)([LocalVariableReadNode(68...69)()]),
+            ArgumentsNode(68...69)([LocalVariableReadNode(68...69)(0)]),
             nil,
             nil,
             "puts"
@@ -189,6 +190,7 @@ ProgramNode(0...278)(
        ParametersNode(141...142)(
          [RequiredParameterNode(141...142)()],
          [],
+         [],
          nil,
          [],
          nil,
@@ -200,7 +202,7 @@ ProgramNode(0...278)(
             nil,
             IDENTIFIER(146...150)("puts"),
             nil,
-            ArgumentsNode(151...152)([LocalVariableReadNode(151...152)()]),
+            ArgumentsNode(151...152)([LocalVariableReadNode(151...152)(0)]),
             nil,
             nil,
             "puts"
@@ -219,6 +221,7 @@ ProgramNode(0...278)(
        nil,
        ParametersNode(166...167)(
          [RequiredParameterNode(166...167)()],
+         [],
          [],
          nil,
          [],
@@ -256,7 +259,7 @@ ProgramNode(0...278)(
                StringInterpolatedNode(209...213)(
                  EMBEXPR_BEGIN(209...211)("\#{"),
                  StatementsNode(211...212)(
-                   [LocalVariableReadNode(211...212)()]
+                   [LocalVariableReadNode(211...212)(0)]
                  ),
                  EMBEXPR_END(212...213)("}")
                )],
@@ -277,6 +280,7 @@ ProgramNode(0...278)(
        SelfNode(220...224)(),
        ParametersNode(233...234)(
          [RequiredParameterNode(233...234)()],
+         [],
          [],
          nil,
          [],
@@ -314,7 +318,7 @@ ProgramNode(0...278)(
                StringInterpolatedNode(273...277)(
                  EMBEXPR_BEGIN(273...275)("\#{"),
                  StatementsNode(275...276)(
-                   [LocalVariableReadNode(275...276)()]
+                   [LocalVariableReadNode(275...276)(0)]
                  ),
                  EMBEXPR_END(276...277)("}")
                )],
