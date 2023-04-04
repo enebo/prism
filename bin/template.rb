@@ -8,18 +8,26 @@ $jruby = RUBY_ENGINE == 'jruby'
 
 # This represents a parameter to a node that is itself a node. We pass them as
 # references and store them as references.
-class NodeParam < Struct.new(:name, :c_type)
+class NodeParam < Struct.new(:name, :c_type, :kind)
   def param = "yp_node_t *#{name}"
   def rbs_class = "Node"
-  def java_type = $jruby && name == "scope" ? "StaticScope" : "Node"    
+  def java_type
+    return "StaticScope" if name == "scope"
+    kind || "Node"
+  end
+  def java_load_type = $jruby && name == "scope" ? "StaticScope" : "Node"
 end
 
 # This represents a parameter to a node that is itself a node and can be
 # optionally null. We pass them as references and store them as references.
-class OptionalNodeParam < Struct.new(:name, :c_type, :fallback)
+class OptionalNodeParam < Struct.new(:name, :c_type, :kind, :fallback)
   def param = "yp_node_t *#{name}"
   def rbs_class = "Node?"
-  def java_type = "Node"
+  def java_type
+    return "StaticScope" if name == "scope"
+    kind || "Node"
+  end
+  def java_load_type = $jruby && name == "scope" ? "StaticScope" : "Node"
 end
 
 SingleNodeParam = -> (node) { (NodeParam === node or OptionalNodeParam === node) and node.java_type != "StaticScope" }
@@ -30,6 +38,7 @@ class NodeListParam < Struct.new(:name)
   def param = nil
   def rbs_class = "Array[Node]"
   def java_type = "Node[]"
+  alias java_load_type java_type
 end
 
 # This represents a parameter to a node that is a token. We pass them as
@@ -38,6 +47,7 @@ class TokenParam < Struct.new(:name)
   def param = "const yp_token_t *#{name}"
   def rbs_class = "Token"
   def java_type = "Token"
+  alias java_load_type java_type
 end
 
 # This represents a parameter to a node that is a token that is optional.
@@ -45,6 +55,7 @@ class OptionalTokenParam < Struct.new(:name)
   def param = "const yp_token_t *#{name}"
   def rbs_class = "Token?"
   def java_type = "Token"
+  alias java_load_type java_type
 end
 
 # This represents a parameter to a node that is a list of tokens.
@@ -52,6 +63,7 @@ class TokenListParam < Struct.new(:name)
   def param = nil
   def rbs_class = "Array[Token]"
   def java_type = "Token[]"
+  alias java_load_type java_type
 end
 
 # This represents a parameter to a node that is a string.
@@ -59,6 +71,7 @@ class StringParam < Struct.new(:name)
   def param = nil
   def rbs_class = "String"
   def java_type = "byte[]"
+  alias java_load_type java_type
 end
 
 # This represents a parameter to a node that is a location.
@@ -66,6 +79,7 @@ class LocationParam < Struct.new(:name)
   def param = "const yp_location_t *#{name}"
   def rbs_class = "Location"
   def java_type = "Location"
+  alias java_load_type java_type
 end
 
 # This represents a parameter to a node that is a location that is optional.
@@ -73,6 +87,7 @@ class OptionalLocationParam < Struct.new(:name)
   def param = "const yp_location_t *#{name}"
   def rbs_class = "Location?"
   def java_type = "Location"
+  alias java_load_type java_type
 end
 
 # This represents an integer parameter.
@@ -80,6 +95,7 @@ class IntegerParam < Struct.new(:name)
   def param = "int #{name}"
   def rbs_class = "Integer"
   def java_type = "int"
+  alias java_load_type java_type
 end
 
 # This class represents a node in the tree, configured by the config.yml file in
@@ -102,7 +118,7 @@ class NodeType
         case (type = param.fetch("type"))
         when "node", "node?"
           c_type = param["kind"].nil? ? "yp_node" : "yp_#{param["kind"].gsub(/(?<=.)[A-Z]/, "_\\0").downcase}"
-          (type == "node" ? NodeParam : OptionalNodeParam).new(name, c_type)
+          (type == "node" ? NodeParam : OptionalNodeParam).new(name, c_type, param["kind"])
         when "node[]"
           NodeListParam.new(name)
         when "string"
