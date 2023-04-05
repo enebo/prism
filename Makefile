@@ -22,11 +22,11 @@ endif
 all: build/librubyparser.$(SOEXT)
 
 build/librubyparser.$(SOEXT): $(shell find src -name '*.c') $(shell find src -name '*.h') Makefile build include/yarp/ast.h
-	$(CC) $(CFLAGS) $(DEBUG_FLAGS) -std=c99 -Wall -Werror -Wextra -Wpedantic -Wsign-conversion -Wno-missing-field-initializers -Wno-uninitialized -fPIC -g -fvisibility=hidden -shared -Iinclude -o $@ $(shell find src -name '*.c')
+	$(CC) $(CFLAGS) $(DEBUG_FLAGS) -O3 -std=c99 -Wall -Werror -Wextra -Wpedantic -Wsign-conversion -Wno-missing-field-initializers -Wno-uninitialized -fPIC -g -fvisibility=hidden -shared -Iinclude -o $@ $(shell find src -name '*.c')
 
 # TODO: this will need to compile on Windows.
 build/libjavaparser.$(SOEXT): $(shell find jni -name '*.c') build/librubyparser.$(SOEXT)
-	$(CC) $(CFLAGS) -I"$(JAVA_HOME)/include" -I"$(JAVA_HOME)/include/linux" -Iinclude -Ijni -fPIC -shared -o $@ $(shell find jni -name '*.c') $(shell find src -name '*.c') 
+	$(CC) $(CFLAGS) -I"$(JAVA_HOME)/include" -I"$(JAVA_HOME)/include/linux" -Iinclude -Ijni -fPIC -shared -O3 -o $@ $(shell find jni -name '*.c') $(shell find src -name '*.c') 
 
 
 #	$(CC) $(CFLAGS) -Bstatic -I"$(JAVA_HOME)/include" -I"$(JAVA_HOME)/include/linux" -Isrc -Ijni -shared -o $@ $(shell find jni -name '*.c') build/librubyparser.$(SOEXT)
