@@ -351,6 +351,7 @@ nodes:
         type: node
       - name: operator
         type: token
+        exclude: execute
     comment: |
       Represents the use of the `&&` operator or the `and` keyword.
 
@@ -373,6 +374,7 @@ nodes:
         type: token?
       - name: closing
         type: token?
+        exclude: execute
     comment: |
       Represents an array literal. This can be a regular array using brackets or
       a special array using % like %w or %i.
@@ -418,6 +420,7 @@ nodes:
         type: node?
       - name: operator
         type: token?
+        exclude: execute
     comment: |
       Represents a hash key/value pair.
 
@@ -429,6 +432,7 @@ nodes:
         type: node?
       - name: operator_loc
         type: location
+        exclude: execute
     comment: |
       Represents a splat in a hash literal.
 
@@ -438,6 +442,7 @@ nodes:
     child_nodes:
       - name: begin_keyword
         type: token?
+        exclude: execute
       - name: statements
         type: node?
         kind: StatementsNode
@@ -452,6 +457,7 @@ nodes:
         kind: EnsureNode
       - name: end_keyword
         type: token?
+        exclude: execute
     comment: |
       Represents a begin statement.
 
@@ -465,6 +471,7 @@ nodes:
         type: node?
       - name: operator_loc
         type: location
+        exclude: execute
     comment: |
       Represents block method arguments.
 
@@ -482,8 +489,10 @@ nodes:
         type: node?
       - name: opening_loc
         type: location
+        exclude: execute
       - name: closing_loc
         type: location
+        exclude: execute
     comment: |
       Represents a block of ruby code.
 
@@ -495,6 +504,7 @@ nodes:
         type: token?
       - name: operator_loc
         type: location
+        exclude: execute
     comment: |
       Represents a block parameter to a method, block, or lambda definition.
 
@@ -531,15 +541,18 @@ nodes:
         type: node?
       - name: call_operator
         type: token?
+        exclude: execute
       - name: message
         type: token?
       - name: opening
         type: token?
+        exclude: execute
       - name: arguments
         type: node?
         kind: ArgumentsNode
       - name: closing
         type: token?
+        exclude: execute
       - name: block
         type: node?
         kind: BlockNode
@@ -589,8 +602,10 @@ nodes:
         kind: ElseNode
       - name: case_keyword_loc
         type: location
+        exclude: execute
       - name: end_keyword_loc
         type: location
+        exclude: execute
     comment: |
       Represents the use of a case statement.
 
@@ -605,16 +620,19 @@ nodes:
         kind: ScopeNode
       - name: class_keyword
         type: token
+        exclude: execute
       - name: constant_path
         type: node
       - name: inheritance_operator
         type: token?
+        exclude: execute
       - name: superclass
         type: node?
       - name: statements
         type: node?
       - name: end_keyword
         type: token
+        exclude: execute
     comment: |
       Represents a class declaration involving the `class` keyword.
 
@@ -634,6 +652,7 @@ nodes:
         type: node?
       - name: operator_loc
         type: location?
+        exclude: execute
     comment: |
       Represents writing to a class variable.
 
@@ -647,6 +666,7 @@ nodes:
         type: node
       - name: delimiter_loc
         type: location
+        exclude: execute
     comment: |
       Represents accessing a constant through a path of `::` operators.
 
@@ -658,6 +678,7 @@ nodes:
         type: node
       - name: operator
         type: token?
+        exclude: execute
       - name: value
         type: node?
     comment: |
@@ -690,16 +711,22 @@ nodes:
         kind: ScopeNode
       - name: def_keyword_loc
         type: location
+        exclude: execute
       - name: operator_loc
         type: location?
+        exclude: execute
       - name: lparen_loc
         type: location?
+        exclude: execute
       - name: rparen_loc
         type: location?
+        exclude: execute
       - name: equal_loc
         type: location?
+        exclude: execute
       - name: end_keyword_loc
         type: location?
+        exclude: execute
     comment: |
       Represents a method definition.
 
@@ -710,12 +737,15 @@ nodes:
     child_nodes:
       - name: lparen
         type: token?
+        exclude: execute
       - name: value
         type: node
       - name: rparen
         type: token?
+        exclude: execute
       - name: keyword_loc
         type: location
+        exclude: execute
     comment: |
       Represents the use of the `defined?` keyword.
 
@@ -725,11 +755,13 @@ nodes:
     child_nodes:
       - name: else_keyword
         type: token
+        exclude: execute
       - name: statements
         type: node?
         kind: StatementsNode
       - name: end_keyword
         type: token?
+        exclude: execute
     comment: |
       Represents an `else` clause in a `case`, `if`, or `unless` statement.
 
@@ -739,11 +771,13 @@ nodes:
     child_nodes:
       - name: ensure_keyword
         type: token
+        exclude: execute
       - name: statements
         type: node?
         kind: StatementsNode
       - name: end_keyword
         type: token
+        exclude: execute
     comment: |
       Represents an `ensure` clause in a `begin` statement.
 
@@ -771,8 +805,10 @@ nodes:
         type: node
       - name: opening_loc
         type: location?
+        exclude: execute
       - name: closing_loc
         type: location?
+        exclude: execute
     comment: |
       Represents a find pattern in pattern matching.
 
@@ -801,12 +837,16 @@ nodes:
         kind: StatementsNode
       - name: for_keyword_loc
         type: location
+        exclude: execute
       - name: in_keyword_loc
         type: location
+        exclude: execute
       - name: do_keyword_loc
         type: location?
+        exclude: execute
       - name: end_keyword_loc
         type: location
+        exclude: execute
     comment: |
       Represents the use of the `for` keyword.
 
@@ -852,6 +892,7 @@ nodes:
         type: token
       - name: operator
         type: token?
+        exclude: execute
       - name: value
         type: node?
     comment: |
@@ -863,10 +904,12 @@ nodes:
     child_nodes:
       - name: opening
         type: token?
+        exclude: execute
       - name: elements
         type: node[]
       - name: closing
         type: token?
+        exclude: execute
     comment: |
       Represents a hash literal.
 
@@ -882,8 +925,10 @@ nodes:
         type: node?
       - name: opening_loc
         type: location?
+        exclude: execute
       - name: closing_loc
         type: location?
+        exclude: execute
     comment: |
       Represents a hash pattern in pattern matching.
 
@@ -896,10 +941,12 @@ nodes:
     child_nodes:
       - name: opening
         type: token
+        exclude: execute
       - name: parts
         type: node[]
       - name: closing
         type: token
+        exclude: execute
       - name: dedent
         type: integer
     comment: |
@@ -913,6 +960,7 @@ nodes:
     child_nodes:
       - name: if_keyword
         type: token
+        exclude: execute
       - name: predicate
         type: node
       - name: statements
@@ -922,6 +970,7 @@ nodes:
         type: node?
       - name: end_keyword
         type: token?
+        exclude: execute
     comment: |
       Represents the use of the `if` keyword, either in the block form or the modifier form.
 
@@ -947,6 +996,7 @@ nodes:
         type: location
       - name: then_loc
         type: location?
+        exclude: execute
     comment: |
       Represents the use of the `in` keyword in a case statement.
 
@@ -966,6 +1016,7 @@ nodes:
         type: node?
       - name: operator_loc
         type: location?
+        exclude: execute
     comment: |
       Represents writing to an instance variable.
 
@@ -981,10 +1032,12 @@ nodes:
     child_nodes:
       - name: opening
         type: token
+        exclude: execute
       - name: parts
         type: node[]
       - name: closing
         type: token
+        exclude: execute
     comment: |
       Represents a regular expression literal that contains interpolation.
 
@@ -994,10 +1047,12 @@ nodes:
     child_nodes:
       - name: opening
         type: token?
+        exclude: execute
       - name: parts
         type: node[]
       - name: closing
         type: token?
+        exclude: execute
     comment: |
       Represents a string literal that contains interpolation.
 
@@ -1007,10 +1062,12 @@ nodes:
     child_nodes:
       - name: opening
         type: token?
+        exclude: execute
       - name: parts
         type: node[]
       - name: closing
         type: token?
+        exclude: execute
     comment: |
       Represents a symbol literal that contains interpolation.
 
@@ -1020,10 +1077,12 @@ nodes:
     child_nodes:
       - name: opening
         type: token
+        exclude: execute
       - name: parts
         type: node[]
       - name: closing
         type: token
+        exclude: execute
     comment: |
       Represents an xstring literal that contains interpolation.
 
@@ -1049,6 +1108,7 @@ nodes:
     child_nodes:
       - name: operator
         type: token
+        exclude: execute
       - name: name
         type: token?
     comment: |
@@ -1064,13 +1124,16 @@ nodes:
         kind: ScopeNode
       - name: opening
         type: token
+        exclude: execute
       - name: lparen
         type: token?
+        exclude: execute
       - name: parameters
         type: node?
         kind: BlockParametersNode
       - name: rparen
         type: token?
+        exclude: execute
       - name: statements
         type: node?
     comment: |
@@ -1097,6 +1160,7 @@ nodes:
         type: node?
       - name: operator_loc
         type: location?
+        exclude: execute
       - name: depth
         type: integer
     comment: |
@@ -1112,6 +1176,7 @@ nodes:
         type: node
       - name: operator_loc
         type: location
+        exclude: execute
     comment: |
       Represents the use of the modifier `in` operator.
 
@@ -1125,6 +1190,7 @@ nodes:
         type: node
       - name: operator_loc
         type: location
+        exclude: execute
     comment: |
       Represents the use of the `=>` operator.
 
@@ -1141,12 +1207,14 @@ nodes:
         kind: ScopeNode
       - name: module_keyword
         type: token
+        exclude: execute
       - name: constant_path
         type: node
       - name: statements
         type: node?
       - name: end_keyword
         type: token
+        exclude: execute
     comment: |
       Represents a module declaration involving the `module` keyword.
 
@@ -1158,12 +1226,15 @@ nodes:
         type: node[]
       - name: operator
         type: token?
+        exclude: execute
       - name: value
         type: node?
       - name: lparen_loc
         type: location?
+        exclude: execute
       - name: rparen_loc
         type: location?
+        exclude: execute
     comment: |
       Represents a multi-target expression.
 
@@ -1176,6 +1247,7 @@ nodes:
         kind: ArgumentsNode
       - name: keyword_loc
         type: location
+        exclude: execute
     comment: |
       Represents the use of the `next` keyword.
 
@@ -1191,8 +1263,10 @@ nodes:
     child_nodes:
       - name: operator_loc
         type: location
+        exclude: execute
       - name: keyword_loc
         type: location
+        exclude: execute
     comment: |
       Represents the use of `**nil` inside method arguments.
 
@@ -1207,6 +1281,7 @@ nodes:
         type: node
       - name: operator_loc
         type: location
+        exclude: execute
     comment: |
       Represents the use of the `&&=` operator for assignment.
 
@@ -1233,6 +1308,7 @@ nodes:
         type: node
       - name: operator_loc
         type: location
+        exclude: execute
     comment: |
       Represents the use of the `||=` operator for assignment.
 
@@ -1244,6 +1320,7 @@ nodes:
         type: token
       - name: equal_operator
         type: token
+        exclude: execute
       - name: value
         type: node
     comment: |
@@ -1260,6 +1337,7 @@ nodes:
         type: node
       - name: operator_loc
         type: location
+        exclude: execute
     comment: |
       Represents the use of the `||` operator or the `or` keyword.
 
@@ -1295,8 +1373,10 @@ nodes:
         type: node?
       - name: opening_loc
         type: location
+        exclude: execute
       - name: closing_loc
         type: location
+        exclude: execute
     comment: |
       Represents a parentesized expression
 
@@ -1308,10 +1388,13 @@ nodes:
         type: node
       - name: operator_loc
         type: location
+        exclude: execute
       - name: lparen_loc
         type: location
+        exclude: execute
       - name: rparen_loc
         type: location
+        exclude: execute
     comment: |
       Represents the use of the `^` operator for pinning an expression in a
       pattern matching expression.
@@ -1324,6 +1407,7 @@ nodes:
         type: node
       - name: operator_loc
         type: location
+        exclude: execute
     comment: |
       Represents the use of the `^` operator for pinning a variable in a pattern
       matching expression.
@@ -1337,10 +1421,13 @@ nodes:
         kind: StatementsNode
       - name: keyword_loc
         type: location
+        exclude: execute
       - name: opening_loc
         type: location
+        exclude: execute
       - name: closing_loc
         type: location
+        exclude: execute
     comment: |
       Represents the use of the `END` keyword.
 
@@ -1353,10 +1440,13 @@ nodes:
         kind: StatementsNode
       - name: keyword_loc
         type: location
+        exclude: execute
       - name: opening_loc
         type: location
+        exclude: execute
       - name: closing_loc
         type: location
+        exclude: execute
     comment: |
       Represents the use of the `BEGIN` keyword.
 
@@ -1403,6 +1493,7 @@ nodes:
     child_nodes:
       - name: opening
         type: token
+        exclude: execute
       - name: content
         type: token
       - name: closing
@@ -1420,8 +1511,10 @@ nodes:
         type: node[]
       - name: opening
         type: token
+        exclude: execute
       - name: closing
         type: token
+        exclude: execute
     comment: |
       Represents a destructured required parameter node.
 
@@ -1441,6 +1534,7 @@ nodes:
         type: node
       - name: rescue_keyword
         type: token
+        exclude: execute
       - name: rescue_expression
         type: node
     comment: |
@@ -1452,10 +1546,12 @@ nodes:
     child_nodes:
       - name: rescue_keyword
         type: token
+        exclude: execute
       - name: exceptions
         type: node[]
       - name: equal_greater
         type: token?
+        exclude: execute
       - name: exception
         type: node?
       - name: statements
@@ -1476,6 +1572,7 @@ nodes:
     child_nodes:
       - name: operator
         type: token
+        exclude: execute
       - name: name
         type: token?
     comment: |
@@ -1494,6 +1591,7 @@ nodes:
     child_nodes:
       - name: keyword
         type: token
+        exclude: execute
       - name: arguments
         type: node?
         kind: ArgumentsNode
@@ -1522,14 +1620,17 @@ nodes:
         kind: ScopeNode
       - name: class_keyword
         type: token
+        exclude: execute
       - name: operator
         type: token
+        exclude: execute
       - name: expression
         type: node
       - name: statements
         type: node?
       - name: end_keyword
         type: token
+        exclude: execute
     comment: |
       Represents a singleton class declaration involving the `class` keyword.
 
@@ -1557,6 +1658,7 @@ nodes:
     child_nodes:
       - name: operator
         type: token
+        exclude: execute
       - name: expression
         type: node?
     comment: |
@@ -1588,11 +1690,13 @@ nodes:
     child_nodes:
       - name: opening
         type: token
+        exclude: execute
       - name: statements
         type: node?
         kind: StatementsNode
       - name: closing
         type: token
+        exclude: execute
     comment: |
       Represents an interpolated set of statements within a string.
 
@@ -1602,10 +1706,12 @@ nodes:
     child_nodes:
       - name: opening
         type: token?
+        exclude: execute
       - name: content
         type: token
       - name: closing
         type: token?
+        exclude: execute
       - name: unescaped
         type: string
     comment: |
@@ -1624,13 +1730,16 @@ nodes:
     child_nodes:
       - name: keyword
         type: token
+        exclude: execute
       - name: lparen
         type: token?
+        exclude: execute
       - name: arguments
         type: node?
         kind: ArgumentsNode
       - name: rparen
         type: token?
+        exclude: execute
       - name: block
         type: node?
         kind: BlockNode
@@ -1646,10 +1755,12 @@ nodes:
     child_nodes:
       - name: opening
         type: token?
+        exclude: execute
       - name: value
         type: token
       - name: closing
         type: token?
+        exclude: execute
       - name: unescaped
         type: string
     comment: |
@@ -1672,6 +1783,7 @@ nodes:
         type: node[]
       - name: keyword_loc
         type: location
+        exclude: execute
     comment: |
       Represents the use of the `undef` keyword.
 
@@ -1681,6 +1793,7 @@ nodes:
     child_nodes:
       - name: keyword
         type: token
+        exclude: execute
       - name: predicate
         type: node
       - name: statements
@@ -1691,6 +1804,7 @@ nodes:
         kind: ElseNode
       - name: end_keyword
         type: token?
+        exclude: execute
     comment: |
       Represents the use of the `unless` keyword, either in the block form or the modifier form.
 
@@ -1720,6 +1834,7 @@ nodes:
     child_nodes:
       - name: when_keyword
         type: token
+        exclude: execute
       - name: conditions
         type: node[]
       - name: statements
@@ -1751,10 +1866,12 @@ nodes:
     child_nodes:
       - name: opening
         type: token
+        exclude: execute
       - name: content
         type: token
       - name: closing
         type: token
+        exclude: execute
       - name: unescaped
         type: string
     comment: |
@@ -1766,6 +1883,7 @@ nodes:
     child_nodes:
       - name: keyword
         type: token
+        exclude: execute
       - name: lparen
         type: token?
       - name: arguments

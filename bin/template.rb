@@ -8,7 +8,7 @@ $jruby = RUBY_ENGINE == 'jruby'
 
 # This represents a parameter to a node that is itself a node. We pass them as
 # references and store them as references.
-class NodeParam < Struct.new(:name, :c_type, :kind)
+class NodeParam < Struct.new(:name, :c_type, :kind, :exclude)
   def param = "yp_node_t *#{name}"
   def rbs_class = "Node"
   def java_type
@@ -20,7 +20,7 @@ end
 
 # This represents a parameter to a node that is itself a node and can be
 # optionally null. We pass them as references and store them as references.
-class OptionalNodeParam < Struct.new(:name, :c_type, :kind, :fallback)
+class OptionalNodeParam < Struct.new(:name, :c_type, :kind, :exclude, :fallback)
   def param = "yp_node_t *#{name}"
   def rbs_class = "Node?"
   def java_type
@@ -34,7 +34,7 @@ SingleNodeParam = -> (node) { (NodeParam === node or OptionalNodeParam === node)
 
 # This represents a parameter to a node that is a list of nodes. We pass them as
 # references and store them as references.
-class NodeListParam < Struct.new(:name)
+class NodeListParam < Struct.new(:name, :exclude)
   def param = nil
   def rbs_class = "Array[Node]"
   def java_type = "Node[]"
@@ -43,7 +43,7 @@ end
 
 # This represents a parameter to a node that is a token. We pass them as
 # references and store them by copying.
-class TokenParam < Struct.new(:name)
+class TokenParam < Struct.new(:name, :exclude)
   def param = "const yp_token_t *#{name}"
   def rbs_class = "Token"
   def java_type = "Token"
@@ -51,7 +51,7 @@ class TokenParam < Struct.new(:name)
 end
 
 # This represents a parameter to a node that is a token that is optional.
-class OptionalTokenParam < Struct.new(:name)
+class OptionalTokenParam < Struct.new(:name, :exclude)
   def param = "const yp_token_t *#{name}"
   def rbs_class = "Token?"
   def java_type = "Token"
@@ -59,7 +59,7 @@ class OptionalTokenParam < Struct.new(:name)
 end
 
 # This represents a parameter to a node that is a list of tokens.
-class TokenListParam < Struct.new(:name)
+class TokenListParam < Struct.new(:name, :exclude)
   def param = nil
   def rbs_class = "Array[Token]"
   def java_type = "Token[]"
@@ -67,7 +67,7 @@ class TokenListParam < Struct.new(:name)
 end
 
 # This represents a parameter to a node that is a string.
-class StringParam < Struct.new(:name)
+class StringParam < Struct.new(:name, :exclude)
   def param = nil
   def rbs_class = "String"
   def java_type = "byte[]"
@@ -75,7 +75,7 @@ class StringParam < Struct.new(:name)
 end
 
 # This represents a parameter to a node that is a location.
-class LocationParam < Struct.new(:name)
+class LocationParam < Struct.new(:name, :exclude)
   def param = "const yp_location_t *#{name}"
   def rbs_class = "Location"
   def java_type = "Location"
@@ -83,7 +83,7 @@ class LocationParam < Struct.new(:name)
 end
 
 # This represents a parameter to a node that is a location that is optional.
-class OptionalLocationParam < Struct.new(:name)
+class OptionalLocationParam < Struct.new(:name, :exclude)
   def param = "const yp_location_t *#{name}"
   def rbs_class = "Location?"
   def java_type = "Location"
@@ -91,7 +91,7 @@ class OptionalLocationParam < Struct.new(:name)
 end
 
 # This represents an integer parameter.
-class IntegerParam < Struct.new(:name)
+class IntegerParam < Struct.new(:name, :exclude)
   def param = "int #{name}"
   def rbs_class = "Integer"
   def java_type = "int"
@@ -113,28 +113,29 @@ class NodeType
 
     @params =
       config.fetch("child_nodes", []).map do |param|
-        name = param.fetch("name")
+      name = param.fetch("name")
+      exclude = param["exclude"]
 
         case (type = param.fetch("type"))
         when "node", "node?"
           c_type = param["kind"].nil? ? "yp_node" : "yp_#{param["kind"].gsub(/(?<=.)[A-Z]/, "_\\0").downcase}"
-          (type == "node" ? NodeParam : OptionalNodeParam).new(name, c_type, param["kind"])
+          (type == "node" ? NodeParam : OptionalNodeParam).new(name, c_type, param["kind"], exclude)
         when "node[]"
-          NodeListParam.new(name)
+          NodeListParam.new(name, exclude)
         when "string"
           StringParam.new(name)
         when "token"
-          TokenParam.new(name)
+          TokenParam.new(name, exclude)
         when "token?"
-          OptionalTokenParam.new(name)
+          OptionalTokenParam.new(name, exclude)
         when "token[]"
-          TokenListParam.new(name)
+          TokenListParam.new(name, exclude)
         when "location"
-          LocationParam.new(name)
+          LocationParam.new(name, exclude)
         when "location?"
-          OptionalLocationParam.new(name)
+          OptionalLocationParam.new(name, exclude)
         when "integer"
-          IntegerParam.new(name)
+          IntegerParam.new(name, exclude)
         else
           raise "Unknown param type: #{param["type"].inspect}"
         end
