@@ -20,7 +20,6 @@
 #include "yarp/util/yp_buffer.h"
 #include "yarp/util/yp_char.h"
 #include "yarp/util/yp_strpbrk.h"
-#include "yarp/util/yp_strspn.h"
 
 #define YP_VERSION_MAJOR 0
 #define YP_VERSION_MINOR 4
@@ -38,7 +37,7 @@ yp_version(void);
 
 // Initialize a parser with the given start and end pointers.
 __attribute__((__visibility__("default"))) extern void
-yp_parser_init(yp_parser_t *parser, const char *source, size_t size);
+yp_parser_init(yp_parser_t *parser, const char *source, size_t size, const char *filepath);
 
 // Register a callback that will be called whenever YARP changes the encoding it
 // is using to parse based on the magic comment.

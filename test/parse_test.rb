@@ -14,11 +14,23 @@ class ParseTest < Test::Unit::TestCase
   known_failures = %w[
     seattlerb/heredoc__backslash_dos_format.rb
     seattlerb/heredoc_nested.rb
-    seattlerb/heredoc_squiggly_visually_blank_lines.rb
     seattlerb/heredoc_trailing_slash_continued_call.rb
     seattlerb/pct_w_heredoc_interp_nested.rb
-    seattlerb/required_kwarg_no_value.rb
   ]
+
+  # Because the filepath in SourceFileNodes is different from one maching to the
+  # next, PP.pp(sexp, +"", 79) can have different results: both the path itself
+  # and the line breaks based on the length of the path.
+  def normalize_printed(printed)
+    printed
+      .gsub(
+        /SourceFileNode \s*
+          \(\s* (\d+\.\.\.\d+) \s*\) \s*
+          \(\s* ("[^"]*")      \s*\)
+        /mx,
+        'SourceFileNode(\1)(\2)')
+      .gsub(__dir__, "")
+  end
 
   Dir[File.expand_path("fixtures/**/*.rb", __dir__)].each do |filepath|
     relative = filepath.delete_prefix("#{File.expand_path("fixtures", __dir__)}/")
@@ -38,15 +50,21 @@ class ParseTest < Test::Unit::TestCase
       # Next, parse the source and print the value.
       result = YARP.parse_file_dup(filepath)
       value = result.value
-      printed = PP.pp(value, +"")
+      printed = normalize_printed(PP.pp(value, +"", 79))
 
       # Next, assert that there were no errors during parsing.
       assert_empty result.errors, value
 
       if File.exist?(snapshot)
+        expected = File.read(snapshot)
+        normalized = normalize_printed(expected)
+        if expected != normalized
+          File.write(snapshot, normalized)
+          warn("Updated snapshot at #{snapshot}.")
+        end
         # If the snapshot file exists, then assert that the printed value
         # matches the snapshot.
-        assert_equal(File.read(snapshot), printed)
+        assert_equal(normalized, printed)
       else
         # If the snapshot file does not yet exist, then write it out now.
         File.write(snapshot, printed)
@@ -57,7 +75,7 @@ class ParseTest < Test::Unit::TestCase
       # changing the shape of the tree.
       assert_equal_nodes(
         value,
-        YARP.load(source, YARP.dump(source)),
+        YARP.load(source, YARP.dump(source, filepath)),
         # We should be comparing the location here, but can't because of bugs.
         # We should fix this.
         compare_location: false

@@ -1,6 +1,6 @@
 tokens:
   - name: EOF
-    value: 0
+    value: 1
     comment: final token in the file
   - name: MISSING
     comment: "a token that was expected but not found"
@@ -518,11 +518,19 @@ nodes:
         kind: ParametersNode
       - name: locals
         type: token[]
+      - name: opening_loc
+        type: location?
+      - name: closing_loc
+        type: location?
     comment: |
-      Represents a block variable declaration.
+      Represents a block's parameters declaration.
 
           -> (a, b = 1; local) { }
-              ^^^^^^^^^^^^^^^
+             ^^^^^^^^^^^^^^^^^
+
+          foo do |a, b = 1; local|
+                 ^^^^^^^^^^^^^^^^^
+          end
   - name: BreakNode
     child_nodes:
       - name: arguments
@@ -937,25 +945,6 @@ nodes:
 
           foo => { a: 1, b: 2, **c }
                  ^^^^^^^^^^^^^^^^^^^
-  - name: HeredocNode
-    child_nodes:
-      - name: opening
-        type: token
-        exclude: execute
-      - name: parts
-        type: node[]
-      - name: closing
-        type: token
-        exclude: execute
-      - name: dedent
-        type: integer
-    comment: |
-      Represents the use of a heredoc.
-
-          <<~HERE
-            Content.
-          HERE
-          ^^^^^^^^^^
   - name: IfNode
     child_nodes:
       - name: if_keyword
@@ -1124,16 +1113,9 @@ nodes:
         kind: ScopeNode
       - name: opening
         type: token
-        exclude: execute
-      - name: lparen
-        type: token?
-        exclude: execute
       - name: parameters
         type: node?
         kind: BlockParametersNode
-      - name: rparen
-        type: token?
-        exclude: execute
       - name: statements
         type: node?
     comment: |
@@ -1643,6 +1625,10 @@ nodes:
           __ENCODING__
           ^^^^^^^^^^^^
   - name: SourceFileNode
+    is_migrated: true
+    child_nodes:
+      - name: filepath
+        type: string
     comment: |
       Represents the use of the `__FILE__` keyword.
 

@@ -73,7 +73,7 @@ ProgramNode(0...148)(
        nil,
        BlockNode(70...80)(
          ScopeNode(70...72)([IDENTIFIER(74...75)("a")]),
-         BlockParametersNode(74...75)(
+         BlockParametersNode(73...76)(
            ParametersNode(74...75)(
              [RequiredParameterNode(74...75)()],
              [],
@@ -83,7 +83,9 @@ ProgramNode(0...148)(
              nil,
              nil
            ),
-           []
+           [],
+           (73...74),
+           (75...76)
          ),
          nil,
          (70...72),
@@ -97,7 +99,7 @@ ProgramNode(0...148)(
        IDENTIFIER(82...85)("foo"),
        PARENTHESIS_LEFT(85...86)("("),
        ArgumentsNode(101...105)(
-         [HeredocNode(101...105)(
+         [InterpolatedStringNode(101...105)(
             HEREDOC_START(86...92)("<<-DOC"),
             [StringNode(101...105)(
                nil,
@@ -105,14 +107,13 @@ ProgramNode(0...148)(
                nil,
                "  b\n"
              )],
-            HEREDOC_END(105...109)("DOC\n"),
-            0
+            HEREDOC_END(105...109)("DOC\n")
           )]
        ),
        PARENTHESIS_RIGHT(92...93)(")"),
        BlockNode(94...116)(
          ScopeNode(94...96)([IDENTIFIER(98...99)("a")]),
-         BlockParametersNode(98...99)(
+         BlockParametersNode(97...100)(
            ParametersNode(98...99)(
              [RequiredParameterNode(98...99)()],
              [],
@@ -122,7 +123,9 @@ ProgramNode(0...148)(
              nil,
              nil
            ),
-           []
+           [],
+           (97...98),
+           (99...100)
          ),
          StatementsNode(111...112)([LocalVariableReadNode(111...112)(0)]),
          (94...96),
@@ -136,7 +139,7 @@ ProgramNode(0...148)(
        IDENTIFIER(118...121)("foo"),
        PARENTHESIS_LEFT(121...122)("("),
        ArgumentsNode(133...137)(
-         [HeredocNode(133...137)(
+         [InterpolatedStringNode(133...137)(
             HEREDOC_START(122...128)("<<-DOC"),
             [StringNode(133...137)(
                nil,
@@ -144,8 +147,7 @@ ProgramNode(0...148)(
                nil,
                "  b\n"
              )],
-            HEREDOC_END(137...141)("DOC\n"),
-            0
+            HEREDOC_END(137...141)("DOC\n")
           )]
        ),
        PARENTHESIS_RIGHT(128...129)(")"),

@@ -409,7 +409,7 @@ ProgramNode(0...3655)(
          nil,
          "foo"
        ),
-       SourceFileNode(291...299)(),
+       SourceFileNode(291...299)("/fixtures/patterns.rb"),
        (288...290)
      ),
      MatchRequiredNode(300...315)(
@@ -454,8 +454,6 @@ ProgramNode(0...3655)(
        LambdaNode(343...351)(
          ScopeNode(343...345)([]),
          MINUS_GREATER(343...345)("->"),
-         nil,
-         nil,
          nil,
          StatementsNode(348...351)([LocalVariableReadNode(348...351)(1)])
        ),
@@ -1021,8 +1019,8 @@ ProgramNode(0...3655)(
          "foo"
        ),
        RangeNode(824...844)(
-         SourceFileNode(824...832)(),
-         SourceFileNode(836...844)(),
+         SourceFileNode(824...832)("/fixtures/patterns.rb"),
+         SourceFileNode(836...844)("/fixtures/patterns.rb"),
          (833...835)
        ),
        (821...823)
@@ -1079,15 +1077,11 @@ ProgramNode(0...3655)(
            ScopeNode(916...918)([]),
            MINUS_GREATER(916...918)("->"),
            nil,
-           nil,
-           nil,
            StatementsNode(921...924)([LocalVariableReadNode(921...924)(1)])
          ),
          LambdaNode(930...938)(
            ScopeNode(930...932)([]),
            MINUS_GREATER(930...932)("->"),
-           nil,
-           nil,
            nil,
            StatementsNode(935...938)([LocalVariableReadNode(935...938)(1)])
          ),
@@ -2367,7 +2361,7 @@ ProgramNode(0...3655)(
          nil,
          "foo"
        ),
-       SourceFileNode(1921...1929)(),
+       SourceFileNode(1921...1929)("/fixtures/patterns.rb"),
        (1918...1920)
      ),
      MatchPredicateNode(1930...1945)(
@@ -2412,8 +2406,6 @@ ProgramNode(0...3655)(
        LambdaNode(1973...1981)(
          ScopeNode(1973...1975)([]),
          MINUS_GREATER(1973...1975)("->"),
-         nil,
-         nil,
          nil,
          StatementsNode(1978...1981)([LocalVariableReadNode(1978...1981)(1)])
        ),
@@ -2978,7 +2970,7 @@ ProgramNode(0...3655)(
          "foo"
        ),
        [InNode(2609...2625)(
-          SourceFileNode(2612...2620)(),
+          SourceFileNode(2612...2620)("/fixtures/patterns.rb"),
           nil,
           (2609...2611),
           (2621...2625)
@@ -3044,8 +3036,6 @@ ProgramNode(0...3655)(
           LambdaNode(2709...2717)(
             ScopeNode(2709...2711)([]),
             MINUS_GREATER(2709...2711)("->"),
-            nil,
-            nil,
             nil,
             StatementsNode(2714...2717)(
               [LocalVariableReadNode(2714...2717)(1)]
@@ -3781,7 +3771,9 @@ ProgramNode(0...3655)(
           IfNode(3511...3526)(
             KEYWORD_IF_MODIFIER(3520...3522)("if"),
             LocalVariableReadNode(3523...3526)(0),
-            StatementsNode(3511...3519)([SourceFileNode(3511...3519)()]),
+            StatementsNode(3511...3519)(
+              [SourceFileNode(3511...3519)("/fixtures/patterns.rb")]
+            ),
             nil,
             nil
           ),
@@ -3866,8 +3858,6 @@ ProgramNode(0...3655)(
               [LambdaNode(3629...3637)(
                  ScopeNode(3629...3631)([]),
                  MINUS_GREATER(3629...3631)("->"),
-                 nil,
-                 nil,
                  nil,
                  StatementsNode(3634...3637)(
                    [LocalVariableReadNode(3634...3637)(1)]

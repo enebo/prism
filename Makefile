@@ -47,8 +47,7 @@ clean:
 		java/org/yarp/{AbstractNodeVisitor.java,Loader.java,Nodes.java} \
 		jruby/org/yarp/{AbstractNodeVisitor.java,Loader.java,Nodes.java} \
 		lib/yarp/{node,serialize}.rb \
-		src/{node.c,prettyprint.c,serialize.c,token_type.c} \
-		src/util/yp_strspn.c
+		src/{node.c,prettyprint.c,serialize.c,token_type.c}
 
 .PHONY: clean
 
