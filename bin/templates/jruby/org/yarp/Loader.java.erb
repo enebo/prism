@@ -67,19 +67,19 @@ public class Loader {
     }
 
     private Nodes.Token loadOptionalToken() {
-        if (buffer.get(buffer.position()) != 0) {
-            return loadToken();
+        int type = buffer.get();
+        if (type != 0) {
+            return loadToken(type);
         } else {
-            buffer.position(buffer.position() + 1); // continue after the 0 byte
             return null;
         }
     }
 
     private Nodes.Node loadOptionalNode() {
-        if (buffer.get(buffer.position()) != 0) {
-            return loadNode();
+        int type = buffer.get();
+        if (type != 0) {
+            return loadNode(type);
         } else {
-            buffer.position(buffer.position() + 1); // continue after the 0 byte
             return null;
         }
     }
@@ -103,7 +103,10 @@ public class Loader {
     }
 
     private Nodes.Token loadToken() {
-        int type = buffer.get() & 0xFF;
+        return loadToken(buffer.get());
+    }
+
+    private Nodes.Token loadToken(int type) {                            
         int startOffset = buffer.getInt();
         int endOffset = buffer.getInt();
 
@@ -151,7 +154,10 @@ public class Loader {
                             
 
     private Nodes.Node loadNode() {
-        int type = buffer.get() & 0xFF;
+        return loadNode(buffer.get());
+    }
+
+    private Nodes.Node loadNode(int type) {
         int startOffset = buffer.getInt();
         int endOffset = buffer.getInt();
 
