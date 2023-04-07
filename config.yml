@@ -912,7 +912,6 @@ nodes:
     child_nodes:
       - name: opening
         type: token?
-        exclude: execute
       - name: elements
         type: node[]
       - name: closing
