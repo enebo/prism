@@ -67,7 +67,7 @@ public class Loader {
     }
 
     private Nodes.Token loadOptionalToken() {
-        int type = buffer.get();
+        int type = buffer.get() & 0xFF;
         if (type != 0) {
             return loadToken(type);
         } else {
@@ -76,7 +76,7 @@ public class Loader {
     }
 
     private Nodes.Node loadOptionalNode() {
-        int type = buffer.get();
+        int type = buffer.get() & 0xFF;
         if (type != 0) {
             return loadNode(type);
         } else {
@@ -103,7 +103,7 @@ public class Loader {
     }
 
     private Nodes.Token loadToken() {
-        return loadToken(buffer.get());
+        return loadToken(buffer.get() & 0xFF);
     }
 
     private Nodes.Token loadToken(int type) {                            
@@ -154,7 +154,7 @@ public class Loader {
                             
 
     private Nodes.Node loadNode() {
-        return loadNode(buffer.get());
+        return loadNode(buffer.get() & 0xFF);
     }
 
     private Nodes.Node loadNode(int type) {
@@ -162,8 +162,9 @@ public class Loader {
         int endOffset = buffer.getInt();
 
         switch (type) {
+        case 0: return null; // Optional*
         <%- nodes.each_with_index do |node, index| -%>
-        case <%= index %>: return load<%= node.name %>(startOffset, endOffset);
+        case <%= index + 1 %>: return load<%= node.name %>(startOffset, endOffset);
         <%- end -%>
         default:
             throw new Error("Unknown node type: " + type);
